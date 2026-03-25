@@ -298,17 +298,16 @@
   </div>
 
   <script>
-    const BASE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRgO4ItRAvWwbTOq7U0el52mJfIyIFLqxuCLdFZCNTnCfIgjIDZGvgZVNgxY6Q9Q/pub?output=csv";
+   const SHEET_ID = "1SQAHZLQmBjKGeac7sEg9ChFQdwOVClcT";
 
 const URLS = {
-  clientes: BASE,
-  compras: BASE,
-  colas: BASE,
-  sabores: BASE,
-  stills: BASE,
-  multicategorias: BASE
+  clientes: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1063039588`,
+  compras: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=PEGAR_GID_COMPRAS`,
+  colas: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=PEGAR_GID_COLAS`,
+  sabores: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=PEGAR_GID_SABORES`,
+  stills: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=PEGAR_GID_STILLS`,
+  multicategorias: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=PEGAR_GID_MULTICATEGORIAS`
 };
-
     const URLS = {
       clientes: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Clientes`,
       compras: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Compras`,
