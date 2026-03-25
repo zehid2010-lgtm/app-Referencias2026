@@ -298,7 +298,16 @@
   </div>
 
   <script>
-    const SHEET_ID = "1SQAHZLQmBjKGeac7sEg9ChFQdwOVClcT";
+    const BASE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRgO4ItRAvWwbTOq7U0el52mJfIyIFLqxuCLdFZCNTnCfIgjIDZGvgZVNgxY6Q9Q/pub?output=csv";
+
+const URLS = {
+  clientes: BASE,
+  compras: BASE,
+  colas: BASE,
+  sabores: BASE,
+  stills: BASE,
+  multicategorias: BASE
+};
 
     const URLS = {
       clientes: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Clientes`,
