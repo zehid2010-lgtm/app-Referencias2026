@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cobertura por Cliente</title>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    :root{
+      --rojo:#d6001c;
+      --rojo-suave:#fdecec;
+      --verde:#188038;
+      --verde-suave:#eaf6ee;
+      --gris:#f5f5f7;
+      --borde:#d9d9de;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      background:var(--gris);
+      color:#111;
+    }
+    .app{
+      max-width:560px;
+      margin:0 auto;
+      min-height:100vh;
+    }
+    .header{
+      background:linear-gradient(135deg,#d6001c,#b80018);
+      color:#fff;
+      padding:20px 16px;
+    }
+    .header h1{
+      margin:0;
+      font-size:22px;
+    }
+    .header p{
+      margin:6px 0 0;
+      font-size:14px;
+    }
+    .content{padding:14px}
+    .card{
+      background:#fff;
+      border-radius:18px;
+      padding:14px;
+      margin-bottom:12px;
+      box-shadow:0 4px 16px rgba(0,0,0,.06);
+    }
+    .label{
+      display:block;
+      font-size:12px;
+      font-weight:700;
+      color:#555;
+      margin:0 0 6px;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+    }
+    input,select,button{
+      width:100%;
+      border-radius:12px;
+      border:1px solid var(--borde);
+      padding:12px;
+      font-size:15px;
+    }
+    input,select{background:#fff}
+    button{
+      border:none;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .btn-primary{
+      background:var(--rojo);
+      color:#fff;
+    }
+    .btn-secondary{
+      background:#ececf1;
+      color:#333;
+    }
+    .grid{display:grid;gap:10px}
+    .actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:10px;
+    }
+    .badges{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+    .badge{
+      padding:8px 12px;
+      border-radius:999px;
+      background:#f1f1f1;
+      font-size:13px;
+      font-weight:700;
+    }
+    .badge.ok{background:var(--verde-suave);color:var(--verde)}
+    .badge.no{background:var(--rojo-suave);color:var(--rojo)}
+    .tabs{
+      display:flex;
+      gap:8px;
+      overflow:auto;
+      margin-top:10px;
+      padding-bottom:2px;
+    }
+    .tab{
+      min-width:max-content;
+      border:1px solid #ddd;
+      background:#f1f1f1;
+      color:#333;
+      border-radius:999px;
+      padding:8px 14px;
+      font-size:13px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .tab.active{
+      background:var(--rojo);
+      color:#fff;
+      border-color:var(--rojo);
+    }
+    .cliente-info{
+      border:1px solid #ececec;
+      border-radius:14px;
+      padding:10px 12px;
+      margin-bottom:10px;
+    }
+    .cliente-info h3{
+      margin:0 0 4px;
+      font-size:16px;
+    }
+    .cliente-info p{
+      margin:0;
+      font-size:13px;
+      color:#666;
+    }
+    .resumen{
+      display:grid;
+      gap:10px;
+      margin:10px 0 12px;
+    }
+    .resumen-item{
+      border:1px solid #ececec;
+      border-radius:14px;
+      padding:10px 12px;
+    }
+    .resumen-top{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:6px;
+      font-size:14px;
+      font-weight:700;
+    }
+    .barra{
+      height:9px;
+      background:#ececec;
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .barra-fill{
+      height:100%;
+      background:var(--rojo);
+      border-radius:999px;
+    }
+    .resumen-meta{
+      margin-top:6px;
+      font-size:12px;
+      color:#666;
+    }
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .item{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      border:1px solid #ececec;
+      border-radius:14px;
+      padding:10px 12px;
+      background:#fff;
+    }
+    .item-name{
+      font-size:14px;
+      font-weight:700;
+      line-height:1.25;
+    }
+    .item-cat{
+      margin-top:4px;
+      font-size:12px;
+      color:#777;
+    }
+    .state{
+      min-width:95px;
+      text-align:center;
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+    }
+    .state-ok{
+      background:var(--verde-suave);
+      color:var(--verde);
+      border:1px solid #cde7d4;
+    }
+    .state-no{
+      background:var(--rojo-suave);
+      color:var(--rojo);
+      border:1px solid #f3caca;
+    }
+    .muted{
+      text-align:center;
+      color:#666;
+      font-size:13px;
+      padding:14px 8px;
+    }
+    .msg{
+      display:none;
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:12px;
+      font-size:13px;
+    }
+    .msg.error{
+      background:#fff1f1;
+      border:1px solid #efc5c5;
+      color:#9d1e1e;
+    }
+    .msg.info{
+      background:#f2f2f2;
+      border:1px solid #e2e2e2;
+      color:#333;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <h1>Cobertura por Cliente</h1>
+      <p>Productos comprados en verde y pendientes en rojo</p>
+    </div>
+
+    <div class="content">
+      <div class="card">
+        <div class="grid">
+          <div>
+            <label class="label" for="searchClient">Buscar cliente o número</label>
+            <input id="searchClient" type="text" placeholder="Ej: 3100979 o nombre del cliente" />
+          </div>
+
+          <div>
+            <label class="label" for="clientSelect">Cliente</label>
+            <select id="clientSelect">
+              <option value="">Seleccionar cliente</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="label" for="searchProduct">Buscar producto</label>
+            <input id="searchProduct" type="text" placeholder="Escribí un producto" />
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="btnReload" class="btn-primary">Actualizar datos</button>
+          <button id="btnClear" class="btn-secondary">Limpiar</button>
+        </div>
+
+        <div class="badges">
+          <div class="badge" id="badgeTotal">Total: 0</div>
+          <div class="badge ok" id="badgeBought">Comprados: 0</div>
+          <div class="badge no" id="badgeMissing">Pendientes: 0</div>
+        </div>
+
+        <div id="infoMsg" class="msg info"></div>
+        <div id="errorMsg" class="msg error"></div>
+      </div>
+
+      <div class="card">
+        <div id="clienteInfo" style="display:none" class="cliente-info">
+          <h3 id="clienteNombre"></h3>
+          <p id="clienteMeta"></p>
+        </div>
+
+        <div class="tabs" id="tabs"></div>
+        <div id="resumen" class="resumen" style="display:none"></div>
+        <div id="productos" class="list">
+          <div class="muted">Cargando datos desde Drive...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SHEET_ID = "1SQAHZLQmBjKGeac7sEg9ChFQdwOVClcT";
+
+    const URLS = {
+      clientes: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Clientes`,
+      compras: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Compras`,
+      colas: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=COLAS`,
+      sabores: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=SABORES`,
+      stills: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=STILLS`,
+      multicategorias: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=MULTICATEGORIAS`
+    };
+
+    const state = {
+      clientes: [],
+      compras: [],
+      categorias: {
+        COLAS: [],
+        SABORES: [],
+        STILLS: [],
+        MULTICATEGORIAS: []
+      },
+      clienteActual: "",
+      categoriaActual: "TODOS"
+    };
+
+    const CATS = ["TODOS", "COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"];
+
+    const $ = (id) => document.getElementById(id);
+    const searchClient = $("searchClient");
+    const clientSelect = $("clientSelect");
+    const searchProduct = $("searchProduct");
+    const btnReload = $("btnReload");
+    const btnClear = $("btnClear");
+    const badgeTotal = $("badgeTotal");
+    const badgeBought = $("badgeBought");
+    const badgeMissing = $("badgeMissing");
+    const infoMsg = $("infoMsg");
+    const errorMsg = $("errorMsg");
+    const tabs = $("tabs");
+    const resumen = $("resumen");
+    const productos = $("productos");
+    const clienteInfo = $("clienteInfo");
+    const clienteNombre = $("clienteNombre");
+    const clienteMeta = $("clienteMeta");
+
+    function showInfo(text) {
+      infoMsg.style.display = "block";
+      infoMsg.textContent = text;
+    }
+
+    function hideInfo() {
+      infoMsg.style.display = "none";
+      infoMsg.textContent = "";
+    }
+
+    function showError(text) {
+      errorMsg.style.display = "block";
+      errorMsg.textContent = text;
+    }
+
+    function hideError() {
+      errorMsg.style.display = "none";
+      errorMsg.textContent = "";
+    }
+
+    function normalize(v) {
+      return String(v ?? "").trim();
+    }
+
+    function slug(v) {
+      return normalize(v).toLowerCase();
+    }
+
+    function nombreCat(cat) {
+      if (cat === "COLAS") return "Colas";
+      if (cat === "SABORES") return "Sabores";
+      if (cat === "STILLS") return "Stills";
+      if (cat === "MULTICATEGORIAS") return "Multicategorías";
+      return "Todos";
+    }
+
+    function buildTabs() {
+      tabs.innerHTML = CATS.map(cat => `
+        <button class="tab ${state.categoriaActual === cat ? "active" : ""}" data-cat="${cat}">
+          ${nombreCat(cat)}
+        </button>
+      `).join("");
+
+      tabs.querySelectorAll(".tab").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.categoriaActual = btn.dataset.cat;
+          buildTabs();
+          render();
+        });
+      });
+    }
+
+    async function cargarCSV(url) {
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`No se pudo cargar ${url}`);
+      }
+      const text = await res.text();
+      return Papa.parse(text, {
+        header: true,
+        skipEmptyLines: true
+      }).data;
+    }
+
+    async function cargarDatosDesdeDrive() {
+      try {
+        hideError();
+        showInfo("Cargando datos desde Drive...");
+
+        const [
+          clientesRaw,
+          comprasRaw,
+          colasRaw,
+          saboresRaw,
+          stillsRaw,
+          multiRaw
+        ] = await Promise.all([
+          cargarCSV(URLS.clientes),
+          cargarCSV(URLS.compras),
+          cargarCSV(URLS.colas),
+          cargarCSV(URLS.sabores),
+          cargarCSV(URLS.stills),
+          cargarCSV(URLS.multicategorias)
+        ]);
+
+        state.clientes = clientesRaw.map(x => ({
+          numero: normalize(x.Numero || x.NUMERO || x.numero),
+          cliente: normalize(x.Cliente || x.CLIENTE || x.cliente),
+          ruta: normalize(x.Ruta || x.RUTA || x.ruta),
+          vendedor: normalize(x.Vendedor || x.VENDEDOR || x.vendedor)
+        })).filter(x => x.numero && x.cliente);
+
+        state.compras = comprasRaw.map(x => ({
+          numero: normalize(x.Numero || x.NUMERO || x.numero),
+          producto: normalize(x.Producto || x.PRODUCTO || x.producto)
+        })).filter(x => x.numero && x.producto);
+
+        state.categorias.COLAS = colasRaw.map(x => normalize(x.Producto || x.PRODUCTO || x.producto)).filter(Boolean);
+        state.categorias.SABORES = saboresRaw.map(x => normalize(x.Producto || x.PRODUCTO || x.producto)).filter(Boolean);
+        state.categorias.STILLS = stillsRaw.map(x => normalize(x.Producto || x.PRODUCTO || x.producto)).filter(Boolean);
+        state.categorias.MULTICATEGORIAS = multiRaw.map(x => normalize(x.Producto || x.PRODUCTO || x.producto)).filter(Boolean);
+
+        state.clienteActual = "";
+        state.categoriaActual = "TODOS";
+        searchClient.value = "";
+        searchProduct.value = "";
+        clientSelect.value = "";
+
+        buildClientSelect();
+        buildTabs();
+        render();
+
+        showInfo(`Datos cargados correctamente. Clientes: ${state.clientes.length}`);
+      } catch (error) {
+        console.error(error);
+        showError("No se pudieron cargar los datos desde Google Sheets. Verificá que la planilla esté compartida como 'Cualquier persona con el enlace'.");
+        productos.innerHTML = `<div class="muted">No se pudieron cargar los datos.</div>`;
+      }
+    }
+
+    function buildClientSelect() {
+      const term = slug(searchClient.value);
+
+      const filtrados = state.clientes.filter(c => {
+        if (!term) return true;
+        return slug(c.numero).includes(term) || slug(c.cliente).includes(term);
+      });
+
+      clientSelect.innerHTML = `<option value="">Seleccionar cliente</option>` +
+        filtrados
+          .sort((a, b) => a.cliente.localeCompare(b.cliente, "es"))
+          .map(c => `<option value="${c.numero}">${c.numero} - ${c.cliente}</option>`)
+          .join("");
+
+      if (state.clienteActual && filtrados.some(c => c.numero === state.clienteActual)) {
+        clientSelect.value = state.clienteActual;
+      }
+    }
+
+    function unique(list) {
+      const seen = new Set();
+      return list.filter(p => {
+        const key = slug(p);
+        if (!key || seen.has(key)) return false;
+        seen.add(key);
+        return !key.includes("faltante 197");
+      });
+    }
+
+    function catalogoActual() {
+      if (state.categoriaActual === "TODOS") {
+        return unique([
+          ...state.categorias.COLAS,
+          ...state.categorias.SABORES,
+          ...state.categorias.STILLS,
+          ...state.categorias.MULTICATEGORIAS
+        ]);
+      }
+      return unique(state.categorias[state.categoriaActual] || []);
+    }
+
+    function categoriaDeProducto(prod) {
+      if (state.categorias.COLAS.includes(prod)) return "Colas";
+      if (state.categorias.SABORES.includes(prod)) return "Sabores";
+      if (state.categorias.STILLS.includes(prod)) return "Stills";
+      if (state.categorias.MULTICATEGORIAS.includes(prod)) return "Multicategorías";
+      return "";
+    }
+
+    function getComprados(numero) {
+      return new Set(
+        state.compras
+          .filter(x => x.numero === numero)
+          .map(x => normalize(x.producto))
+      );
+    }
+
+    function renderResumen(compradosSet) {
+      if (!state.clienteActual) {
+        resumen.style.display = "none";
+        resumen.innerHTML = "";
+        return;
+      }
+
+      const items = ["COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"].map(cat => {
+        const lista = unique(state.categorias[cat] || []);
+        const total = lista.length;
+        const comprados = lista.filter(p => compradosSet.has(p)).length;
+        const porcentaje = total ? Math.round((comprados / total) * 100) : 0;
+        return { cat, total, comprados, porcentaje };
+      });
+
+      resumen.style.display = "grid";
+      resumen.innerHTML = items.map(item => `
+        <div class="resumen-item">
+          <div class="resumen-top">
+            <div>${nombreCat(item.cat)}</div>
+            <div>${item.porcentaje}%</div>
+          </div>
+          <div class="barra">
+            <div class="barra-fill" style="width:${item.porcentaje}%"></div>
+          </div>
+          <div class="resumen-meta">${item.comprados} de ${item.total} productos</div>
+        </div>
+      `).join("");
+    }
+
+    function render() {
+      state.clienteActual = clientSelect.value;
+
+      if (!state.clientes.length) {
+        clienteInfo.style.display = "none";
+        resumen.style.display = "none";
+        productos.innerHTML = `<div class="muted">No hay datos cargados.</div>`;
+        updateBadges([]);
+        return;
+      }
+
+      if (!state.clienteActual) {
+        clienteInfo.style.display = "none";
+        resumen.style.display = "none";
+        productos.innerHTML = `<div class="muted">Seleccioná un cliente para ver los productos.</div>`;
+        updateBadges([]);
+        return;
+      }
+
+      const cliente = state.clientes.find(x => x.numero === state.clienteActual);
+      const compradosSet = getComprados(state.clienteActual);
+      const term = slug(searchProduct.value);
+
+      let lista = catalogoActual().map(prod => ({
+        producto: prod,
+        comprado: compradosSet.has(prod),
+        categoria: categoriaDeProducto(prod)
+      }));
+
+      if (term) {
+        lista = lista.filter(x => slug(x.producto).includes(term));
+      }
+
+      lista.sort((a, b) => {
+        if (a.comprado !== b.comprado) return a.comprado ? -1 : 1;
+        return a.producto.localeCompare(b.producto, "es");
+      });
+
+      if (cliente) {
+        clienteInfo.style.display = "block";
+        clienteNombre.textContent = `${cliente.numero} - ${cliente.cliente}`;
+        clienteMeta.textContent = `Ruta: ${cliente.ruta || "-"} · Vendedor: ${cliente.vendedor || "-"}`;
+      }
+
+      renderResumen(compradosSet);
+
+      if (!lista.length) {
+        productos.innerHTML = `<div class="muted">No hay productos para mostrar.</div>`;
+        updateBadges([]);
+        return;
+      }
+
+      productos.innerHTML = lista.map(item => `
+        <div class="item">
+          <div>
+            <div class="item-name">${item.producto}</div>
+            <div class="item-cat">${item.categoria}</div>
+          </div>
+          <div class="state ${item.comprado ? "state-ok" : "state-no"}">
+            ${item.comprado ? "Compró" : "No compró"}
+          </div>
+        </div>
+      `).join("");
+
+      updateBadges(lista);
+    }
+
+    function updateBadges(lista) {
+      const total = lista.length;
+      const comprados = lista.filter(x => x.comprado).length;
+      const pendientes = total - comprados;
+
+      badgeTotal.textContent = `Total: ${total}`;
+      badgeBought.textContent = `Comprados: ${comprados}`;
+      badgeMissing.textContent = `Pendientes: ${pendientes}`;
+    }
+
+    searchClient.addEventListener("input", () => {
+      buildClientSelect();
+    });
+
+    clientSelect.addEventListener("change", render);
+    searchProduct.addEventListener("input", render);
+
+    btnReload.addEventListener("click", () => {
+      cargarDatosDesdeDrive();
+    });
+
+    btnClear.addEventListener("click", () => {
+      searchClient.value = "";
+      searchProduct.value = "";
+      state.clienteActual = "";
+      state.categoriaActual = "TODOS";
+      buildClientSelect();
+      buildTabs();
+      render();
+      hideError();
+      hideInfo();
+    });
+
+    buildTabs();
+    window.addEventListener("DOMContentLoaded", cargarDatosDesdeDrive);
+  </script>
+</body>
+</html>
