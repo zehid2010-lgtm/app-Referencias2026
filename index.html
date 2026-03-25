@@ -394,17 +394,19 @@ const URLS = {
       });
     }
 
-    async function cargarCSV(url) {
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error(`No se pudo cargar ${url}`);
-      }
-      const text = await res.text();
-      return Papa.parse(text, {
-        header: true,
-        skipEmptyLines: true
-      }).data;
-    }
+   async function cargarCSV(url) {
+  const res = await fetch(url, { cache: "no-store" });
+  const text = await res.text();
+
+  if (!text || text.includes("<!DOCTYPE html") || text.includes("<html")) {
+    throw new Error("Google devolvió una página HTML en vez del CSV.");
+  }
+
+  return Papa.parse(text, {
+    header: true,
+    skipEmptyLines: true
+  }).data;
+}
 
     async function cargarDatosDesdeDrive() {
       try {
