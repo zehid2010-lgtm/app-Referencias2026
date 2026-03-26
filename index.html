@@ -27,9 +27,64 @@
       min-height:100vh;
     }
     .header{
-      background:linear-gradient(135deg,#d6001c,#b80018);
-      color:#fff;
-      padding:20px 16px;
+  background: linear-gradient(135deg, #d6001c, #a80015);
+  color:#fff;
+  padding:25px 16px 20px;
+  text-align:center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* efecto suave de brillo */
+.header::after{
+  content:"";
+  position:absolute;
+  top:-50%;
+  left:-50%;
+  width:200%;
+  height:200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+  animation: brillo 6s linear infinite;
+}
+
+@keyframes brillo{
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.logo-container{
+  margin-bottom:10px;
+  animation: fadeIn 1s ease;
+}
+
+.logo-container img{
+  height:55px;
+  filter: brightness(0) invert(1); /* blanco */
+}
+
+/* animación suave */
+@keyframes fadeIn{
+  from{
+    opacity:0;
+    transform: translateY(-10px);
+  }
+  to{
+    opacity:1;
+    transform: translateY(0);
+  }
+}
+
+.header h1{
+  margin:0;
+  font-size:22px;
+  font-weight:700;
+}
+
+.header p{
+  margin:6px 0 0;
+  font-size:14px;
+  opacity:0.9;
+}
     }
     .header h1{
       margin:0;
@@ -238,15 +293,15 @@
       color:#333;
     }
   </style>
+  <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Coca-Cola_logo.svg/512px-Coca-Cola_logo.svg.png">
+<link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Coca-Cola_logo.svg/512px-Coca-Cola_logo.svg.png">
 </head>
 <body>
   <div class="app">
-    <div class="header" style="text-align:center;">
-  <img 
-    src="https://upload.wikimedia.org/wikipedia/commons/1/1e/Coca-Cola_logo.svg" 
-    alt="Coca Cola" 
-    style="height:40px; margin-bottom:10px;"
-  />
+    <div class="header">
+  <div class="logo-container">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Coca-Cola_logo.svg/512px-Coca-Cola_logo.svg.png" alt="Coca Cola">
+  </div>
 
   <h1>Cobertura por Cliente</h1>
   <p>Productos comprados en verde y pendientes en rojo</p>
