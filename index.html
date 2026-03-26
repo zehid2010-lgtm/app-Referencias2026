@@ -171,40 +171,71 @@
       font-size:13px;
       color:#666;
     }
+
+    /* RESUMEN HORIZONTAL */
     .resumen{
-      display:grid;
+      display:flex;
       gap:10px;
+      overflow-x:auto;
+      padding-bottom:4px;
       margin:10px 0 12px;
+      scrollbar-width:thin;
     }
     .resumen-item{
+      min-width:150px;
+      flex:0 0 auto;
       border:1px solid #ececec;
       border-radius:14px;
       padding:10px 12px;
+      background:#fff;
     }
     .resumen-top{
       display:flex;
       justify-content:space-between;
+      align-items:center;
       gap:10px;
-      margin-bottom:6px;
+      margin-bottom:8px;
       font-size:14px;
       font-weight:700;
     }
-    .barra{
-      height:9px;
-      background:#ececec;
-      border-radius:999px;
-      overflow:hidden;
+    .resumen-label{
+      font-size:14px;
+      font-weight:700;
+      color:#111;
+      white-space:nowrap;
     }
-    .barra-fill{
-      height:100%;
-      background:var(--rojo);
+    .resumen-pill{
+      min-width:64px;
+      text-align:center;
+      border:1px solid #ddd;
+      background:#f1f1f1;
+      color:#333;
       border-radius:999px;
+      padding:6px 12px;
+      font-size:13px;
+      font-weight:700;
+    }
+    .resumen-pill.ok{
+      background:var(--verde-suave);
+      color:var(--verde);
+      border:1px solid #cde7d4;
+    }
+    .resumen-pill.mid{
+      background:#fff4e5;
+      color:#b26a00;
+      border:1px solid #f1d3a6;
+    }
+    .resumen-pill.no{
+      background:var(--rojo-suave);
+      color:var(--rojo);
+      border:1px solid #f3caca;
     }
     .resumen-meta{
       margin-top:6px;
       font-size:12px;
       color:#666;
     }
+
     .list{
       display:flex;
       flex-direction:column;
@@ -571,18 +602,20 @@
         const total = lista.length;
         const comprados = lista.filter(p => compradosSet.has(p)).length;
         const porcentaje = total ? Math.round((comprados / total) * 100) : 0;
-        return { cat, total, comprados, porcentaje };
+
+        let pillClass = "no";
+        if (porcentaje >= 80) pillClass = "ok";
+        else if (porcentaje >= 40) pillClass = "mid";
+
+        return { cat, total, comprados, porcentaje, pillClass };
       });
 
-      resumen.style.display = "grid";
+      resumen.style.display = "flex";
       resumen.innerHTML = items.map(item => `
         <div class="resumen-item">
           <div class="resumen-top">
-            <div>${nombreCat(item.cat)}</div>
-            <div>${item.porcentaje}%</div>
-          </div>
-          <div class="barra">
-            <div class="barra-fill" style="width:${item.porcentaje}%"></div>
+            <div class="resumen-label">${nombreCat(item.cat)}</div>
+            <div class="resumen-pill ${item.pillClass}">${item.porcentaje}%</div>
           </div>
           <div class="resumen-meta">${item.comprados} de ${item.total} productos</div>
         </div>
