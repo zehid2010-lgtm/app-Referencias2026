@@ -301,6 +301,76 @@
   letter-spacing: 1px;
   text-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
+      .resumen-item{
+  border:1px solid #ececec;
+  border-radius:14px;
+  padding:10px 12px;
+}
+
+.resumen-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:8px;
+  font-size:14px;
+  font-weight:700;
+}
+
+.resumen-label{
+  font-size:14px;
+  font-weight:700;
+  color:#111;
+}
+
+.resumen-pill{
+  min-width:64px;
+  text-align:center;
+  border:1px solid #ddd;
+  background:#f1f1f1;
+  color:#333;
+  border-radius:999px;
+  padding:6px 12px;
+  font-size:13px;
+  font-weight:700;
+}
+
+.resumen-pill.ok{
+  background:var(--verde-suave);
+  color:var(--verde);
+  border:1px solid #cde7d4;
+}
+
+.resumen-pill.mid{
+  background:#fff4e5;
+  color:#b26a00;
+  border:1px solid #f1d3a6;
+}
+
+.resumen-pill.no{
+  background:var(--rojo-suave);
+  color:var(--rojo);
+  border:1px solid #f3caca;
+}
+
+.barra{
+  height:9px;
+  background:#ececec;
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.barra-fill{
+  height:100%;
+  background:var(--rojo);
+  border-radius:999px;
+}
+
+.resumen-meta{
+  margin-top:6px;
+  font-size:12px;
+  color:#666;
+}
   </style>
   <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Coca-Cola_logo.svg/512px-Coca-Cola_logo.svg.png">
 <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Coca-Cola_logo.svg/512px-Coca-Cola_logo.svg.png">
@@ -588,12 +658,40 @@ const URLS = {
       );
     }
 
-    function renderResumen(compradosSet) {
-      if (!state.clienteActual) {
-        resumen.style.display = "none";
-        resumen.innerHTML = "";
-        return;
-      }
+  function renderResumen(compradosSet) {
+  if (!state.clienteActual) {
+    resumen.style.display = "none";
+    resumen.innerHTML = "";
+    return;
+  }
+
+  const items = ["COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"].map(cat => {
+    const lista = unique(state.categorias[cat] || []);
+    const total = lista.length;
+    const comprados = lista.filter(p => compradosSet.has(p)).length;
+    const porcentaje = total ? Math.round((comprados / total) * 100) : 0;
+
+    let pillClass = "no";
+    if (porcentaje >= 80) pillClass = "ok";
+    else if (porcentaje >= 40) pillClass = "mid";
+
+    return { cat, total, comprados, porcentaje, pillClass };
+  });
+
+  resumen.style.display = "grid";
+  resumen.innerHTML = items.map(item => `
+    <div class="resumen-item">
+      <div class="resumen-top">
+        <div class="resumen-label">${nombreCat(item.cat)}</div>
+        <div class="resumen-pill ${item.pillClass}">${item.porcentaje}%</div>
+      </div>
+      <div class="barra">
+        <div class="barra-fill" style="width:${item.porcentaje}%"></div>
+      </div>
+      <div class="resumen-meta">${item.comprados} de ${item.total} productos</div>
+    </div>
+  `).join("");
+}
 
       const items = ["COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"].map(cat => {
         const lista = unique(state.categorias[cat] || []);
