@@ -8,299 +8,675 @@
   <style>
     :root{
       --rojo:#d6001c;
-      --rojo-suave:#fdecec;
-      --verde:#188038;
-      --verde-suave:#eaf6ee;
-      --gris:#f5f5f7;
-      --borde:#d9d9de;
+      --rojo-2:#b10018;
+      --rojo-suave:#fff1f3;
+      --verde:#16823a;
+      --verde-suave:#edf9f0;
+      --amarillo:#d88a00;
+      --amarillo-suave:#fff6e7;
+      --gris-fondo:#f4f6fb;
+      --gris-card:#ffffff;
+      --gris-texto:#1d2433;
+      --gris-sub:#6b7280;
+      --borde:#e7eaf0;
+      --sombra:0 10px 30px rgba(17,24,39,.08);
+      --radius-xl:24px;
+      --radius-lg:18px;
+      --radius-md:14px;
     }
+
     *{box-sizing:border-box}
-    body{
+
+    html,body{
       margin:0;
+      padding:0;
       font-family:Arial,Helvetica,sans-serif;
-      background:var(--gris);
-      color:#111;
+      background:
+        radial-gradient(circle at top left, rgba(214,0,28,.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(214,0,28,.05), transparent 24%),
+        var(--gris-fondo);
+      color:var(--gris-texto);
     }
-    .app{
-      max-width:560px;
-      margin:0 auto;
+
+    body{
       min-height:100vh;
     }
+
+    .app{
+      max-width:620px;
+      margin:0 auto;
+      min-height:100vh;
+      padding-bottom:20px;
+    }
+
     .header{
-      background:linear-gradient(135deg,#d6001c,#a80015);
-      color:#fff;
-      padding:25px 16px 20px;
-      text-align:center;
       position:relative;
       overflow:hidden;
+      padding:28px 18px 24px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.03)),
+        linear-gradient(135deg, var(--rojo), var(--rojo-2));
+      color:#fff;
+      border-bottom-left-radius:28px;
+      border-bottom-right-radius:28px;
+      box-shadow:0 12px 28px rgba(214,0,28,.22);
     }
+
+    .header::before{
+      content:"";
+      position:absolute;
+      top:-60px;
+      right:-60px;
+      width:180px;
+      height:180px;
+      background:radial-gradient(circle, rgba(255,255,255,.18) 0%, transparent 65%);
+      border-radius:50%;
+      pointer-events:none;
+    }
+
     .header::after{
       content:"";
       position:absolute;
-      top:-50%;
-      left:-50%;
-      width:200%;
-      height:200%;
-      background:radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 60%);
-      animation:brillo 8s linear infinite;
+      bottom:-80px;
+      left:-60px;
+      width:220px;
+      height:220px;
+      background:radial-gradient(circle, rgba(255,255,255,.12) 0%, transparent 65%);
+      border-radius:50%;
       pointer-events:none;
     }
-    @keyframes brillo{
-      0%{transform:rotate(0deg)}
-      100%{transform:rotate(360deg)}
-    }
+
     .logo-text{
       position:relative;
       z-index:1;
       font-family:'Brush Script MT','Segoe Script',cursive;
       font-size:52px;
-      color:white;
-      margin-bottom:10px;
+      line-height:1;
       text-align:center;
-      letter-spacing:1px;
-      text-shadow:0 2px 4px rgba(0,0,0,0.2);
+      text-shadow:0 2px 10px rgba(0,0,0,.18);
+      margin-bottom:10px;
     }
+
     .header h1{
       position:relative;
       z-index:1;
       margin:0;
-      font-size:22px;
+      text-align:center;
+      font-size:26px;
+      line-height:1.15;
+      font-weight:800;
+      letter-spacing:.2px;
     }
+
     .header p{
       position:relative;
       z-index:1;
-      margin:6px 0 0;
+      margin:8px 0 0;
+      text-align:center;
       font-size:14px;
-      opacity:.95;
+      opacity:.96;
     }
-    .content{padding:14px}
-    .card{
-      background:#fff;
-      border-radius:18px;
+
+    .content{
       padding:14px;
-      margin-bottom:12px;
-      box-shadow:0 4px 16px rgba(0,0,0,.06);
+      margin-top:-8px;
     }
+
+    .card{
+      background:var(--gris-card);
+      border:1px solid rgba(255,255,255,.65);
+      border-radius:var(--radius-xl);
+      padding:14px;
+      margin-bottom:14px;
+      box-shadow:var(--sombra);
+      backdrop-filter:blur(8px);
+    }
+
+    .card-title{
+      font-size:15px;
+      font-weight:800;
+      color:var(--gris-texto);
+      margin:0 0 12px;
+      letter-spacing:.2px;
+    }
+
     .label{
       display:block;
       font-size:12px;
-      font-weight:700;
-      color:#555;
-      margin:0 0 6px;
+      font-weight:800;
+      color:#5b6472;
+      margin:0 0 7px;
       text-transform:uppercase;
-      letter-spacing:.4px;
+      letter-spacing:.55px;
     }
+
+    .grid{
+      display:grid;
+      gap:12px;
+    }
+
     input,select,button{
       width:100%;
-      border-radius:12px;
-      border:1px solid var(--borde);
-      padding:12px;
+      border-radius:16px;
       font-size:15px;
+      font-family:inherit;
     }
-    input,select{background:#fff}
+
+    input,select{
+      border:1px solid var(--borde);
+      background:#fff;
+      padding:13px 14px;
+      color:var(--gris-texto);
+      outline:none;
+      transition:.18s ease;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
+    }
+
+    input:focus,select:focus{
+      border-color:#f3a4af;
+      box-shadow:0 0 0 4px rgba(214,0,28,.08);
+    }
+
     button{
       border:none;
-      font-weight:700;
+      padding:13px 14px;
+      font-weight:800;
       cursor:pointer;
+      transition:transform .12s ease, box-shadow .18s ease, opacity .18s ease;
     }
+
+    button:active{
+      transform:scale(.99);
+    }
+
     .btn-primary{
-      background:var(--rojo);
       color:#fff;
+      background:linear-gradient(135deg, var(--rojo), var(--rojo-2));
+      box-shadow:0 8px 18px rgba(214,0,28,.22);
     }
+
     .btn-secondary{
-      background:#ececf1;
-      color:#333;
+      color:#374151;
+      background:linear-gradient(135deg, #f5f7fb, #eceff5);
+      border:1px solid var(--borde);
     }
-    .grid{display:grid;gap:10px}
+
     .actions{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:8px;
-      margin-top:10px;
+      gap:10px;
+      margin-top:12px;
     }
+
     .badges{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-top:10px;
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:10px;
+      margin-top:12px;
     }
+
     .badge{
-      padding:8px 12px;
-      border-radius:999px;
-      background:#f1f1f1;
+      border-radius:18px;
+      padding:12px 10px;
+      text-align:center;
+      font-size:13px;
+      font-weight:800;
+      background:#f6f7fb;
+      border:1px solid #edf0f5;
+      color:#2a3342;
+      box-shadow:0 4px 10px rgba(17,24,39,.04);
+    }
+
+    .badge.ok{
+      background:var(--verde-suave);
+      color:var(--verde);
+      border-color:#d6ecd9;
+    }
+
+    .badge.no{
+      background:var(--rojo-suave);
+      color:var(--rojo);
+      border-color:#ffd8de;
+    }
+
+    .msg{
+      display:none;
+      margin-top:12px;
+      padding:12px 14px;
+      border-radius:14px;
       font-size:13px;
       font-weight:700;
     }
-    .badge.ok{background:var(--verde-suave);color:var(--verde)}
-    .badge.no{background:var(--rojo-suave);color:var(--rojo)}
+
+    .msg.error{
+      background:#fff3f4;
+      border:1px solid #ffd6db;
+      color:#9a1b2b;
+    }
+
+    .msg.info{
+      background:#f7f8fb;
+      border:1px solid #e7ebf2;
+      color:#3f4a5d;
+    }
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .score-card{
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.22), rgba(255,255,255,.06)),
+        linear-gradient(135deg, #ffffff, #f8f9fd);
+      border:1px solid #eef1f6;
+      border-radius:26px;
+      padding:18px 16px;
+      box-shadow:var(--sombra);
+      min-height:145px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:flex-start;
+    }
+
+    .score-label{
+      font-size:12px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.7px;
+      color:#7b8494;
+      margin-bottom:4px;
+    }
+
+    .score-valor{
+      font-size:48px;
+      line-height:1;
+      font-weight:900;
+      margin:4px 0 8px;
+      letter-spacing:-1px;
+    }
+
+    .score-estado{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      min-height:36px;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:800;
+      background:#f5f7fb;
+      color:#374151;
+    }
+
+    .mini-panel{
+      display:grid;
+      gap:12px;
+    }
+
+    .mini-kpi{
+      background:#fff;
+      border:1px solid #eef1f6;
+      border-radius:22px;
+      padding:16px 14px;
+      box-shadow:var(--sombra);
+      min-height:66px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+
+    .mini-kpi .kpi-title{
+      font-size:12px;
+      font-weight:800;
+      color:#7a8392;
+      text-transform:uppercase;
+      letter-spacing:.55px;
+      margin-bottom:6px;
+    }
+
+    .mini-kpi .kpi-value{
+      font-size:24px;
+      font-weight:900;
+      line-height:1;
+      color:#1f2937;
+    }
+
+    .cliente-info{
+      display:none;
+      border-radius:22px;
+      padding:16px;
+      margin-bottom:14px;
+      background:
+        linear-gradient(135deg, rgba(214,0,28,.04), rgba(214,0,28,.01)),
+        #fff;
+      border:1px solid #f2e1e4;
+      box-shadow:var(--sombra);
+    }
+
+    .cliente-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .cliente-info h3{
+      margin:0;
+      font-size:18px;
+      line-height:1.2;
+    }
+
+    .cliente-info p{
+      margin:8px 0 0;
+      font-size:13px;
+      color:var(--gris-sub);
+      line-height:1.4;
+    }
+
+    .route-pill{
+      white-space:nowrap;
+      padding:9px 12px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid #f1d5d9;
+      color:var(--rojo);
+      font-size:12px;
+      font-weight:800;
+      box-shadow:0 4px 10px rgba(214,0,28,.06);
+    }
+
+    .section-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .section-head h2{
+      margin:0;
+      font-size:16px;
+      font-weight:900;
+      color:#172033;
+    }
+
+    .section-head span{
+      font-size:12px;
+      font-weight:800;
+      color:#7b8494;
+      text-transform:uppercase;
+      letter-spacing:.55px;
+    }
+
     .tabs{
       display:flex;
       gap:8px;
       overflow:auto;
-      margin-top:10px;
-      padding-bottom:2px;
-    }
-    .tab{
-      min-width:max-content;
-      border:1px solid #ddd;
-      background:#f1f1f1;
-      color:#333;
-      border-radius:999px;
-      padding:8px 14px;
-      font-size:13px;
-      font-weight:700;
-      cursor:pointer;
-    }
-    .tab.active{
-      background:var(--rojo);
-      color:#fff;
-      border-color:var(--rojo);
-    }
-    .cliente-info{
-      border:1px solid #ececec;
-      border-radius:14px;
-      padding:10px 12px;
-      margin-bottom:10px;
-    }
-    .cliente-info h3{
-      margin:0 0 4px;
-      font-size:16px;
-    }
-    .cliente-info p{
-      margin:0;
-      font-size:13px;
-      color:#666;
+      padding-bottom:3px;
+      margin-bottom:12px;
+      scrollbar-width:thin;
     }
 
-    /* RESUMEN HORIZONTAL */
+    .tab{
+      min-width:max-content;
+      border:1px solid #e6e9f0;
+      background:#f7f8fb;
+      color:#3a4456;
+      border-radius:999px;
+      padding:10px 16px;
+      font-size:13px;
+      font-weight:800;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+
+    .tab.active{
+      background:linear-gradient(135deg, var(--rojo), var(--rojo-2));
+      color:#fff;
+      border-color:transparent;
+      box-shadow:0 8px 18px rgba(214,0,28,.18);
+    }
+
     .resumen{
-      display:flex;
+      display:none;
       gap:10px;
       overflow-x:auto;
       padding-bottom:4px;
-      margin:10px 0 12px;
+      margin:0 0 14px;
       scrollbar-width:thin;
     }
+
     .resumen-item{
-      min-width:150px;
+      min-width:180px;
       flex:0 0 auto;
-      border:1px solid #ececec;
-      border-radius:14px;
-      padding:10px 12px;
+      border-radius:20px;
+      padding:14px;
       background:#fff;
+      border:1px solid #edf0f5;
+      box-shadow:0 6px 16px rgba(17,24,39,.05);
     }
+
     .resumen-top{
       display:flex;
       justify-content:space-between;
       align-items:center;
       gap:10px;
-      margin-bottom:8px;
-      font-size:14px;
-      font-weight:700;
+      margin-bottom:10px;
     }
+
     .resumen-label{
       font-size:14px;
-      font-weight:700;
-      color:#111;
-      white-space:nowrap;
+      font-weight:900;
+      color:#172033;
     }
+
     .resumen-pill{
       min-width:64px;
       text-align:center;
-      border:1px solid #ddd;
-      background:#f1f1f1;
-      color:#333;
       border-radius:999px;
-      padding:6px 12px;
-      font-size:13px;
-      font-weight:700;
+      padding:7px 12px;
+      font-size:12px;
+      font-weight:900;
+      border:1px solid transparent;
     }
+
     .resumen-pill.ok{
       background:var(--verde-suave);
       color:var(--verde);
-      border:1px solid #cde7d4;
+      border-color:#d6ecd9;
     }
+
     .resumen-pill.mid{
-      background:#fff4e5;
-      color:#b26a00;
-      border:1px solid #f1d3a6;
+      background:var(--amarillo-suave);
+      color:var(--amarillo);
+      border-color:#f2ddb5;
     }
+
     .resumen-pill.no{
       background:var(--rojo-suave);
       color:var(--rojo);
-      border:1px solid #f3caca;
+      border-color:#ffd6db;
     }
+
     .resumen-meta{
-      margin-top:6px;
+      margin-top:8px;
       font-size:12px;
-      color:#666;
+      color:#697386;
+      font-weight:700;
     }
+
+    .progress-bar{
+      height:8px;
+      background:#eef2f7;
+      border-radius:999px;
+      overflow:hidden;
+      margin-top:10px;
+    }
+
+    .progress-fill{
+      height:100%;
+      border-radius:999px;
+      transition:width .25s ease;
+    }
+
+    .progress-fill.ok{background:linear-gradient(90deg,#1aa048,#16823a)}
+    .progress-fill.mid{background:linear-gradient(90deg,#f0aa20,#d88a00)}
+    .progress-fill.no{background:linear-gradient(90deg,#f24a5f,#d6001c)}
 
     .list{
       display:flex;
       flex-direction:column;
-      gap:8px;
+      gap:10px;
     }
+
     .item{
       display:flex;
       justify-content:space-between;
       align-items:center;
-      gap:10px;
-      border:1px solid #ececec;
-      border-radius:14px;
-      padding:10px 12px;
+      gap:12px;
+      border-radius:20px;
+      padding:14px;
       background:#fff;
+      border:1px solid #edf0f5;
+      box-shadow:0 6px 16px rgba(17,24,39,.05);
+      transition:transform .12s ease, box-shadow .18s ease;
     }
+
+    .item:hover{
+      transform:translateY(-1px);
+      box-shadow:0 10px 22px rgba(17,24,39,.08);
+    }
+
+    .item-main{
+      min-width:0;
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+    }
+
+    .item-icon{
+      width:34px;
+      height:34px;
+      flex:0 0 34px;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:17px;
+      font-weight:900;
+      background:#f6f7fb;
+      border:1px solid #edf0f5;
+    }
+
+    .item-ok .item-icon{
+      background:var(--verde-suave);
+      border-color:#d6ecd9;
+    }
+
+    .item-no .item-icon{
+      background:var(--rojo-suave);
+      border-color:#ffd6db;
+    }
+
     .item-name{
       font-size:14px;
-      font-weight:700;
-      line-height:1.25;
+      font-weight:800;
+      line-height:1.3;
+      color:#172033;
+      word-break:break-word;
     }
+
     .item-cat{
-      margin-top:4px;
+      margin-top:5px;
       font-size:12px;
-      color:#777;
+      color:#7b8494;
+      font-weight:700;
     }
+
     .state{
-      min-width:95px;
+      min-width:102px;
       text-align:center;
-      padding:8px 10px;
+      padding:10px 12px;
       border-radius:999px;
       font-size:12px;
-      font-weight:700;
+      font-weight:900;
+      border:1px solid transparent;
+      white-space:nowrap;
     }
+
     .state-ok{
       background:var(--verde-suave);
       color:var(--verde);
-      border:1px solid #cde7d4;
+      border-color:#d6ecd9;
     }
+
     .state-no{
       background:var(--rojo-suave);
       color:var(--rojo);
-      border:1px solid #f3caca;
+      border-color:#ffd6db;
     }
+
     .muted{
       text-align:center;
-      color:#666;
+      color:#7a8392;
       font-size:13px;
-      padding:14px 8px;
+      font-weight:700;
+      padding:18px 10px;
+      background:#fff;
+      border:1px dashed #e4e8ef;
+      border-radius:18px;
     }
-    .msg{
-      display:none;
-      margin-top:10px;
-      padding:10px 12px;
-      border-radius:12px;
-      font-size:13px;
+
+    .footer-note{
+      margin-top:14px;
+      text-align:center;
+      color:#8a93a3;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.2px;
     }
-    .msg.error{
-      background:#fff1f1;
-      border:1px solid #efc5c5;
-      color:#9d1e1e;
-    }
-    .msg.info{
-      background:#f2f2f2;
-      border:1px solid #e2e2e2;
-      color:#333;
+
+    @media (max-width:560px){
+      .hero-grid{
+        grid-template-columns:1fr;
+      }
+
+      .score-card{
+        align-items:center;
+        text-align:center;
+      }
+
+      .mini-panel{
+        grid-template-columns:1fr 1fr;
+      }
+
+      .cliente-top{
+        flex-direction:column;
+      }
+
+      .route-pill{
+        align-self:flex-start;
+      }
+
+      .badges{
+        grid-template-columns:1fr;
+      }
+
+      .actions{
+        grid-template-columns:1fr;
+      }
+
+      .item{
+        align-items:flex-start;
+      }
+
+      .state{
+        min-width:88px;
+      }
     }
   </style>
 </head>
@@ -309,11 +685,13 @@
     <div class="header">
       <div class="logo-text">Coca-Cola</div>
       <h1>Cobertura por Cliente</h1>
-      <p>Productos comprados en verde y pendientes en rojo</p>
+      <p>Seguimiento premium de compra por categoría y producto</p>
     </div>
 
     <div class="content">
       <div class="card">
+        <div class="card-title">Filtro de búsqueda</div>
+
         <div class="grid">
           <div>
             <label class="label" for="searchClient">Buscar cliente o número</label>
@@ -335,7 +713,7 @@
 
         <div class="actions">
           <button id="btnReload" class="btn-primary">Actualizar datos</button>
-          <button id="btnClear" class="btn-secondary">Limpiar</button>
+          <button id="btnClear" class="btn-secondary">Limpiar filtros</button>
         </div>
 
         <div class="badges">
@@ -348,17 +726,55 @@
         <div id="errorMsg" class="msg error"></div>
       </div>
 
+      <div class="hero-grid">
+        <div id="scoreCard" class="score-card" style="display:none;">
+          <div class="score-label">Score total del cliente</div>
+          <div id="scoreValor" class="score-valor">0%</div>
+          <div id="scoreEstado" class="score-estado">Sin datos</div>
+        </div>
+
+        <div class="mini-panel">
+          <div class="mini-kpi">
+            <div class="kpi-title">Categoría activa</div>
+            <div class="kpi-value" id="miniCategoria">Todos</div>
+          </div>
+
+          <div class="mini-kpi">
+            <div class="kpi-title">Ruta</div>
+            <div class="kpi-value" id="miniRuta">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cliente-info" id="clienteInfo">
+        <div class="cliente-top">
+          <div>
+            <h3 id="clienteNombre"></h3>
+            <p id="clienteMeta"></p>
+          </div>
+          <div class="route-pill" id="routePill">Ruta -</div>
+        </div>
+      </div>
+
       <div class="card">
-        <div id="clienteInfo" style="display:none" class="cliente-info">
-          <h3 id="clienteNombre"></h3>
-          <p id="clienteMeta"></p>
+        <div class="section-head">
+          <h2>Resumen comercial</h2>
+          <span>Vista ejecutiva</span>
         </div>
 
         <div class="tabs" id="tabs"></div>
-        <div id="resumen" class="resumen" style="display:none"></div>
+        <div id="resumen" class="resumen"></div>
+
+        <div class="section-head" style="margin-top:6px;">
+          <h2>Detalle de productos</h2>
+          <span id="detailLabel">Todos</span>
+        </div>
+
         <div id="productos" class="list">
           <div class="muted">Cargando datos desde Drive...</div>
         </div>
+
+        <div class="footer-note">Vista premium de cobertura por cliente</div>
       </div>
     </div>
   </div>
@@ -391,22 +807,34 @@
     const CATS = ["TODOS", "COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"];
 
     const $ = (id) => document.getElementById(id);
+
     const searchClient = $("searchClient");
     const clientSelect = $("clientSelect");
     const searchProduct = $("searchProduct");
     const btnReload = $("btnReload");
     const btnClear = $("btnClear");
+
     const badgeTotal = $("badgeTotal");
     const badgeBought = $("badgeBought");
     const badgeMissing = $("badgeMissing");
+
     const infoMsg = $("infoMsg");
     const errorMsg = $("errorMsg");
     const tabs = $("tabs");
     const resumen = $("resumen");
     const productos = $("productos");
+
     const clienteInfo = $("clienteInfo");
     const clienteNombre = $("clienteNombre");
     const clienteMeta = $("clienteMeta");
+    const routePill = $("routePill");
+
+    const scoreCard = $("scoreCard");
+    const scoreValor = $("scoreValor");
+    const scoreEstado = $("scoreEstado");
+    const miniCategoria = $("miniCategoria");
+    const miniRuta = $("miniRuta");
+    const detailLabel = $("detailLabel");
 
     function showInfo(text) {
       infoMsg.style.display = "block";
@@ -444,6 +872,15 @@
       return "Todos";
     }
 
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
     function buildTabs() {
       tabs.innerHTML = CATS.map(cat => `
         <button class="tab ${state.categoriaActual === cat ? "active" : ""}" data-cat="${cat}">
@@ -462,9 +899,8 @@
 
     async function cargarCSV(url) {
       const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) {
-        throw new Error(`No se pudo cargar ${url}`);
-      }
+      if (!res.ok) throw new Error(`No se pudo cargar ${url}`);
+
       const text = await res.text();
 
       if (!text || text.includes("<!DOCTYPE html") || text.includes("<html")) {
@@ -543,8 +979,13 @@
 
       clientSelect.innerHTML = `<option value="">Seleccionar cliente</option>` +
         filtrados
-          .sort((a, b) => a.cliente.localeCompare(b.cliente, "es"))
-          .map(c => `<option value="${c.numero}">${c.numero} - ${c.cliente}</option>`)
+          .sort((a, b) => {
+            const rutaA = Number(a.ruta) || 9999;
+            const rutaB = Number(b.ruta) || 9999;
+            if (rutaA !== rutaB) return rutaA - rutaB;
+            return a.cliente.localeCompare(b.cliente, "es");
+          })
+          .map(c => `<option value="${escapeHtml(c.numero)}">${escapeHtml(c.numero)} - Ruta ${escapeHtml(c.ruta || "-")} - ${escapeHtml(c.cliente)}</option>`)
           .join("");
 
       if (state.clienteActual && filtrados.some(c => c.numero === state.clienteActual)) {
@@ -618,16 +1059,62 @@
             <div class="resumen-pill ${item.pillClass}">${item.porcentaje}%</div>
           </div>
           <div class="resumen-meta">${item.comprados} de ${item.total} productos</div>
+          <div class="progress-bar">
+            <div class="progress-fill ${item.pillClass}" style="width:${item.porcentaje}%"></div>
+          </div>
         </div>
       `).join("");
     }
 
+    function actualizarScore(cliente, compradosSet) {
+      if (!cliente) {
+        scoreCard.style.display = "none";
+        miniRuta.textContent = "-";
+        miniCategoria.textContent = nombreCat(state.categoriaActual);
+        return;
+      }
+
+      const totalCatalogo = unique([
+        ...state.categorias.COLAS,
+        ...state.categorias.SABORES,
+        ...state.categorias.STILLS,
+        ...state.categorias.MULTICATEGORIAS
+      ]).length;
+
+      const compradosTotal = [...compradosSet].length;
+      const porcentaje = totalCatalogo ? Math.round((compradosTotal / totalCatalogo) * 100) : 0;
+
+      scoreCard.style.display = "flex";
+      scoreValor.textContent = `${porcentaje}%`;
+      miniRuta.textContent = cliente.ruta || "-";
+      miniCategoria.textContent = nombreCat(state.categoriaActual);
+
+      if (porcentaje >= 80) {
+        scoreValor.style.color = "#16823a";
+        scoreEstado.textContent = "Excelente cobertura";
+        scoreEstado.style.background = "#edf9f0";
+        scoreEstado.style.color = "#16823a";
+      } else if (porcentaje >= 50) {
+        scoreValor.style.color = "#d88a00";
+        scoreEstado.textContent = "Cobertura media";
+        scoreEstado.style.background = "#fff6e7";
+        scoreEstado.style.color = "#d88a00";
+      } else {
+        scoreValor.style.color = "#d6001c";
+        scoreEstado.textContent = "Cobertura crítica";
+        scoreEstado.style.background = "#fff1f3";
+        scoreEstado.style.color = "#d6001c";
+      }
+    }
+
     function render() {
       state.clienteActual = clientSelect.value;
+      detailLabel.textContent = nombreCat(state.categoriaActual);
 
       if (!state.clientes.length) {
         clienteInfo.style.display = "none";
         resumen.style.display = "none";
+        scoreCard.style.display = "none";
         productos.innerHTML = `<div class="muted">No hay datos cargados.</div>`;
         updateBadges([]);
         return;
@@ -636,7 +1123,10 @@
       if (!state.clienteActual) {
         clienteInfo.style.display = "none";
         resumen.style.display = "none";
-        productos.innerHTML = `<div class="muted">Seleccioná un cliente para ver los productos.</div>`;
+        scoreCard.style.display = "none";
+        miniRuta.textContent = "-";
+        miniCategoria.textContent = nombreCat(state.categoriaActual);
+        productos.innerHTML = `<div class="muted">Seleccioná un cliente para ver el detalle.</div>`;
         updateBadges([]);
         return;
       }
@@ -663,9 +1153,11 @@
       if (cliente) {
         clienteInfo.style.display = "block";
         clienteNombre.textContent = `${cliente.numero} - ${cliente.cliente}`;
-        clienteMeta.textContent = `Ruta: ${cliente.ruta || "-"} · Vendedor: ${cliente.vendedor || "-"}`;
+        clienteMeta.textContent = `Vendedor: ${cliente.vendedor || "-"} · Categoría visible: ${nombreCat(state.categoriaActual)}`;
+        routePill.textContent = `Ruta ${cliente.ruta || "-"}`;
       }
 
+      actualizarScore(cliente, compradosSet);
       renderResumen(compradosSet);
 
       if (!lista.length) {
@@ -675,13 +1167,16 @@
       }
 
       productos.innerHTML = lista.map(item => `
-        <div class="item">
-          <div>
-            <div class="item-name">${item.producto}</div>
-            <div class="item-cat">${item.categoria}</div>
+        <div class="item ${item.comprado ? "item-ok" : "item-no"}">
+          <div class="item-main">
+            <div class="item-icon">${item.comprado ? "✓" : "!"}</div>
+            <div>
+              <div class="item-name">${escapeHtml(item.producto)}</div>
+              <div class="item-cat">${escapeHtml(item.categoria)}</div>
+            </div>
           </div>
           <div class="state ${item.comprado ? "state-ok" : "state-no"}">
-            ${item.comprado ? "Compró" : "No compró"}
+            ${item.comprado ? "Compró" : "Pendiente"}
           </div>
         </div>
       `).join("");
@@ -699,16 +1194,11 @@
       badgeMissing.textContent = `Pendientes: ${pendientes}`;
     }
 
-    searchClient.addEventListener("input", () => {
-      buildClientSelect();
-    });
-
+    searchClient.addEventListener("input", buildClientSelect);
     clientSelect.addEventListener("change", render);
     searchProduct.addEventListener("input", render);
 
-    btnReload.addEventListener("click", () => {
-      cargarDatosDesdeDrive();
-    });
+    btnReload.addEventListener("click", cargarDatosDesdeDrive);
 
     btnClear.addEventListener("click", () => {
       searchClient.value = "";
