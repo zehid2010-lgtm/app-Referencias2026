@@ -1096,7 +1096,6 @@
     }
 
     function getCategoriaStats(cat, compradosSet) {
-      function getCategoriaStats(cat, compradosSet) {
   const lista = unique(state.categorias[cat] || []);
   const objetivo = OBJETIVOS[cat] || lista.length;
   const avanceReal = lista.filter(p => compradosSet.has(p)).length;
@@ -1121,7 +1120,6 @@
     pillClass
   };
 }
-
     function renderResumen(compradosSet) {
       if (!state.clienteActual) {
         resumen.style.display = "none";
