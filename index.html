@@ -447,7 +447,7 @@
     }
 
     .resumen-item{
-      min-width:180px;
+      min-width:190px;
       flex:0 0 auto;
       border-radius:20px;
       padding:14px;
@@ -496,6 +496,24 @@
       background:var(--rojo-suave);
       color:var(--rojo);
       border-color:#ffd6db;
+    }
+
+    .puntos-pill{
+      margin-top:10px;
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:800;
+      background:#f4f6fb;
+      color:#1f2937;
+      border:1px solid #e3e8f0;
+    }
+
+    .puntos-pill.ok{
+      background:var(--verde-suave);
+      color:var(--verde);
+      border-color:#d6ecd9;
     }
 
     .resumen-meta{
@@ -726,9 +744,9 @@
 
       <div class="hero-grid">
         <div id="scoreCard" class="score-card" style="display:none;">
-          <div class="score-label">Score total del cliente</div>
-          <div id="scoreValor" class="score-valor">0%</div>
-          <div id="scoreEstado" class="score-estado">Sin datos</div>
+          <div class="score-label">Score total por categorías cumplidas</div>
+          <div id="scoreValor" class="score-valor">0</div>
+          <div id="scoreEstado" class="score-estado">0 de 20 puntos</div>
         </div>
 
         <div class="mini-panel">
@@ -811,6 +829,9 @@
       STILLS: 20,
       MULTICATEGORIAS: 5
     };
+
+    const PUNTOS_POR_CATEGORIA = 5;
+    const PUNTAJE_TOTAL = 20;
 
     const $ = (id) => document.getElementById(id);
 
@@ -1074,6 +1095,31 @@
       );
     }
 
+    function getCategoriaStats(cat, compradosSet) {
+      const lista = unique(state.categorias[cat] || []);
+      const objetivo = OBJETIVOS[cat] || lista.length;
+      const avanceReal = lista.filter(p => compradosSet.has(p)).length;
+      const avanceTope = Math.min(avanceReal, objetivo);
+      const porcentaje = objetivo ? Math.round((avanceTope / objetivo) * 100) : 0;
+      const cumplio = avanceReal >= objetivo;
+      const puntos = cumplio ? PUNTOS_POR_CATEGORIA : 0;
+
+      let pillClass = "no";
+      if (porcentaje >= 80) pillClass = "ok";
+      else if (porcentaje >= 40) pillClass = "mid";
+
+      return {
+        cat,
+        objetivo,
+        avanceReal,
+        avanceTope,
+        porcentaje,
+        cumplio,
+        puntos,
+        pillClass
+      };
+    }
+
     function renderResumen(compradosSet) {
       if (!state.clienteActual) {
         resumen.style.display = "none";
@@ -1081,19 +1127,9 @@
         return;
       }
 
-      const items = ["COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"].map(cat => {
-        const lista = unique(state.categorias[cat] || []);
-        const total = OBJETIVOS[cat] || lista.length;
-        const compradosReales = lista.filter(p => compradosSet.has(p)).length;
-        const comprados = Math.min(compradosReales, total);
-        const porcentaje = total ? Math.round((comprados / total) * 100) : 0;
-
-        let pillClass = "no";
-        if (porcentaje >= 80) pillClass = "ok";
-        else if (porcentaje >= 40) pillClass = "mid";
-
-        return { cat, total, comprados, porcentaje, pillClass };
-      });
+      const items = ["COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"].map(cat =>
+        getCategoriaStats(cat, compradosSet)
+      );
 
       resumen.style.display = "flex";
       resumen.innerHTML = items.map(item => `
@@ -1102,9 +1138,12 @@
             <div class="resumen-label">${nombreCat(item.cat)}</div>
             <div class="resumen-pill ${item.pillClass}">${item.porcentaje}%</div>
           </div>
-          <div class="resumen-meta">${item.comprados} de ${item.total} referencias</div>
+          <div class="resumen-meta">${item.avanceReal} de ${item.objetivo} referencias</div>
           <div class="progress-bar">
             <div class="progress-fill ${item.pillClass}" style="width:${item.porcentaje}%"></div>
+          </div>
+          <div class="puntos-pill ${item.cumplio ? "ok" : ""}">
+            ${item.puntos} puntos
           </div>
         </div>
       `).join("");
@@ -1118,50 +1157,28 @@
         return;
       }
 
-      const totalObjetivo =
-        OBJETIVOS.COLAS +
-        OBJETIVOS.SABORES +
-        OBJETIVOS.STILLS +
-        OBJETIVOS.MULTICATEGORIAS;
-
-      const compradosColas = Math.min(
-        unique(state.categorias.COLAS).filter(p => compradosSet.has(p)).length,
-        OBJETIVOS.COLAS
-      );
-      const compradosSabores = Math.min(
-        unique(state.categorias.SABORES).filter(p => compradosSet.has(p)).length,
-        OBJETIVOS.SABORES
-      );
-      const compradosStills = Math.min(
-        unique(state.categorias.STILLS).filter(p => compradosSet.has(p)).length,
-        OBJETIVOS.STILLS
-      );
-      const compradosMulti = Math.min(
-        unique(state.categorias.MULTICATEGORIAS).filter(p => compradosSet.has(p)).length,
-        OBJETIVOS.MULTICATEGORIAS
+      const stats = ["COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"].map(cat =>
+        getCategoriaStats(cat, compradosSet)
       );
 
-      const compradosTotal = compradosColas + compradosSabores + compradosStills + compradosMulti;
-      const porcentaje = totalObjetivo ? Math.round((compradosTotal / totalObjetivo) * 100) : 0;
+      const puntosTotal = stats.reduce((acc, item) => acc + item.puntos, 0);
 
       scoreCard.style.display = "flex";
-      scoreValor.textContent = `${porcentaje}%`;
+      scoreValor.textContent = puntosTotal;
       miniRuta.textContent = cliente.ruta || "-";
       miniCategoria.textContent = nombreCat(state.categoriaActual);
+      scoreEstado.textContent = `${puntosTotal} de ${PUNTAJE_TOTAL} puntos`;
 
-      if (porcentaje >= 80) {
+      if (puntosTotal >= 20) {
         scoreValor.style.color = "#16823a";
-        scoreEstado.textContent = "Excelente cobertura";
         scoreEstado.style.background = "#edf9f0";
         scoreEstado.style.color = "#16823a";
-      } else if (porcentaje >= 50) {
+      } else if (puntosTotal >= 10) {
         scoreValor.style.color = "#d88a00";
-        scoreEstado.textContent = "Cobertura media";
         scoreEstado.style.background = "#fff6e7";
         scoreEstado.style.color = "#d88a00";
       } else {
         scoreValor.style.color = "#d6001c";
-        scoreEstado.textContent = "Cobertura crítica";
         scoreEstado.style.background = "#fff1f3";
         scoreEstado.style.color = "#d6001c";
       }
