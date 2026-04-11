@@ -708,10 +708,7 @@
             </select>
           </div>
 
-          <div>
-            <label class="label" for="searchProduct">Buscar producto</label>
-            <input id="searchProduct" type="text" placeholder="Escribí un producto" />
-          </div>
+          
         </div>
 
         <div class="actions">
@@ -815,7 +812,7 @@
     const routeSelect = $("routeSelect");
     const searchClient = $("searchClient");
     const clientSelect = $("clientSelect");
-    const searchProduct = $("searchProduct");
+    
     const btnReload = $("btnReload");
     const btnClear = $("btnClear");
 
@@ -1010,7 +1007,7 @@
     }
 
     function buildClientSelect() {
-      const term = slug(searchClient.value);
+      
 
       const filtrados = clientesFiltradosBase().filter(c => {
         if (!term) return true;
@@ -1190,9 +1187,7 @@
         categoria: categoriaDeProducto(prod)
       }));
 
-      if (term) {
-        lista = lista.filter(x => slug(x.producto).includes(term));
-      }
+      
 
       lista.sort((a, b) => {
         if (a.comprado !== b.comprado) return a.comprado ? -1 : 1;
@@ -1256,13 +1251,13 @@
     });
 
     clientSelect.addEventListener("change", render);
-    searchProduct.addEventListener("input", render);
+    
 
     btnReload.addEventListener("click", cargarDatosDesdeDrive);
 
     btnClear.addEventListener("click", () => {
       searchClient.value = "";
-      searchProduct.value = "";
+      
       state.clienteActual = "";
       state.categoriaActual = "TODOS";
       state.rutaActual = "";
