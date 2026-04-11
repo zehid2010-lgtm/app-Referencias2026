@@ -805,6 +805,13 @@
 
     const CATS = ["TODOS", "COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"];
 
+    const OBJETIVOS = {
+      COLAS: 15,
+      SABORES: 12,
+      STILLS: 20,
+      MULTICATEGORIAS: 5
+    };
+
     const $ = (id) => document.getElementById(id);
 
     const routeSelect = $("routeSelect");
@@ -1076,8 +1083,9 @@
 
       const items = ["COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"].map(cat => {
         const lista = unique(state.categorias[cat] || []);
-        const total = lista.length;
-        const comprados = lista.filter(p => compradosSet.has(p)).length;
+        const total = OBJETIVOS[cat] || lista.length;
+        const compradosReales = lista.filter(p => compradosSet.has(p)).length;
+        const comprados = Math.min(compradosReales, total);
         const porcentaje = total ? Math.round((comprados / total) * 100) : 0;
 
         let pillClass = "no";
@@ -1094,7 +1102,7 @@
             <div class="resumen-label">${nombreCat(item.cat)}</div>
             <div class="resumen-pill ${item.pillClass}">${item.porcentaje}%</div>
           </div>
-          <div class="resumen-meta">${item.comprados} de ${item.total} productos</div>
+          <div class="resumen-meta">${item.comprados} de ${item.total} referencias</div>
           <div class="progress-bar">
             <div class="progress-fill ${item.pillClass}" style="width:${item.porcentaje}%"></div>
           </div>
@@ -1110,15 +1118,31 @@
         return;
       }
 
-      const totalCatalogo = unique([
-        ...state.categorias.COLAS,
-        ...state.categorias.SABORES,
-        ...state.categorias.STILLS,
-        ...state.categorias.MULTICATEGORIAS
-      ]).length;
+      const totalObjetivo =
+        OBJETIVOS.COLAS +
+        OBJETIVOS.SABORES +
+        OBJETIVOS.STILLS +
+        OBJETIVOS.MULTICATEGORIAS;
 
-      const compradosTotal = [...compradosSet].length;
-      const porcentaje = totalCatalogo ? Math.round((compradosTotal / totalCatalogo) * 100) : 0;
+      const compradosColas = Math.min(
+        unique(state.categorias.COLAS).filter(p => compradosSet.has(p)).length,
+        OBJETIVOS.COLAS
+      );
+      const compradosSabores = Math.min(
+        unique(state.categorias.SABORES).filter(p => compradosSet.has(p)).length,
+        OBJETIVOS.SABORES
+      );
+      const compradosStills = Math.min(
+        unique(state.categorias.STILLS).filter(p => compradosSet.has(p)).length,
+        OBJETIVOS.STILLS
+      );
+      const compradosMulti = Math.min(
+        unique(state.categorias.MULTICATEGORIAS).filter(p => compradosSet.has(p)).length,
+        OBJETIVOS.MULTICATEGORIAS
+      );
+
+      const compradosTotal = compradosColas + compradosSabores + compradosStills + compradosMulti;
+      const porcentaje = totalObjetivo ? Math.round((compradosTotal / totalObjetivo) * 100) : 0;
 
       scoreCard.style.display = "flex";
       scoreValor.textContent = `${porcentaje}%`;
