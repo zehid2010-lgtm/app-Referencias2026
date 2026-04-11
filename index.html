@@ -681,7 +681,7 @@
     <div class="header">
       <div class="logo-text">Coca-Cola</div>
       <h1>Cobertura por Cliente</h1>
-      <p>Seguimiento premium de compra por categoría, ruta y producto</p>
+      <p>Seguimiento premium de compra por categoría y ruta</p>
     </div>
 
     <div class="content">
@@ -707,8 +707,6 @@
               <option value="">Seleccionar cliente</option>
             </select>
           </div>
-
-          
         </div>
 
         <div class="actions">
@@ -812,7 +810,6 @@
     const routeSelect = $("routeSelect");
     const searchClient = $("searchClient");
     const clientSelect = $("clientSelect");
-    
     const btnReload = $("btnReload");
     const btnClear = $("btnClear");
 
@@ -957,7 +954,6 @@
         state.categoriaActual = "TODOS";
         state.rutaActual = "";
         searchClient.value = "";
-        searchProduct.value = "";
         clientSelect.value = "";
         routeSelect.value = "";
 
@@ -1007,7 +1003,7 @@
     }
 
     function buildClientSelect() {
-      
+      const term = slug(searchClient.value);
 
       const filtrados = clientesFiltradosBase().filter(c => {
         if (!term) return true;
@@ -1179,15 +1175,12 @@
 
       const cliente = state.clientes.find(x => x.numero === state.clienteActual);
       const compradosSet = getComprados(state.clienteActual);
-      const term = slug(searchProduct.value);
 
       let lista = catalogoActual().map(prod => ({
         producto: prod,
         comprado: compradosSet.has(prod),
         categoria: categoriaDeProducto(prod)
       }));
-
-      
 
       lista.sort((a, b) => {
         if (a.comprado !== b.comprado) return a.comprado ? -1 : 1;
@@ -1251,13 +1244,11 @@
     });
 
     clientSelect.addEventListener("change", render);
-    
 
     btnReload.addEventListener("click", cargarDatosDesdeDrive);
 
     btnClear.addEventListener("click", () => {
       searchClient.value = "";
-      
       state.clienteActual = "";
       state.categoriaActual = "TODOS";
       state.rutaActual = "";
