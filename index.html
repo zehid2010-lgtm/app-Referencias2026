@@ -38,9 +38,7 @@
       color:var(--gris-texto);
     }
 
-    body{
-      min-height:100vh;
-    }
+    body{min-height:100vh}
 
     .app{
       max-width:620px;
@@ -185,9 +183,7 @@
       transition:transform .12s ease, box-shadow .18s ease, opacity .18s ease;
     }
 
-    button:active{
-      transform:scale(.99);
-    }
+    button:active{transform:scale(.99)}
 
     .btn-primary{
       color:#fff;
@@ -685,7 +681,7 @@
     <div class="header">
       <div class="logo-text">Coca-Cola</div>
       <h1>Cobertura por Cliente</h1>
-      <p>Seguimiento premium de compra por categoría y producto</p>
+      <p>Seguimiento premium de compra por categoría, ruta y producto</p>
     </div>
 
     <div class="content">
@@ -693,6 +689,13 @@
         <div class="card-title">Filtro de búsqueda</div>
 
         <div class="grid">
+          <div>
+            <label class="label" for="routeSelect">Ruta</label>
+            <select id="routeSelect">
+              <option value="">Todas las rutas</option>
+            </select>
+          </div>
+
           <div>
             <label class="label" for="searchClient">Buscar cliente o número</label>
             <input id="searchClient" type="text" placeholder="Ej: 3100979 o nombre del cliente" />
@@ -774,7 +777,7 @@
           <div class="muted">Cargando datos desde Drive...</div>
         </div>
 
-        <div class="footer-note">Vista premium de cobertura por cliente</div>
+        <div class="footer-note">Vista premium de cobertura por cliente y ruta</div>
       </div>
     </div>
   </div>
@@ -801,13 +804,15 @@
         MULTICATEGORIAS: []
       },
       clienteActual: "",
-      categoriaActual: "TODOS"
+      categoriaActual: "TODOS",
+      rutaActual: ""
     };
 
     const CATS = ["TODOS", "COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"];
 
     const $ = (id) => document.getElementById(id);
 
+    const routeSelect = $("routeSelect");
     const searchClient = $("searchClient");
     const clientSelect = $("clientSelect");
     const searchProduct = $("searchProduct");
@@ -953,10 +958,13 @@
 
         state.clienteActual = "";
         state.categoriaActual = "TODOS";
+        state.rutaActual = "";
         searchClient.value = "";
         searchProduct.value = "";
         clientSelect.value = "";
+        routeSelect.value = "";
 
+        buildRouteSelect();
         buildClientSelect();
         buildTabs();
         render();
@@ -969,10 +977,42 @@
       }
     }
 
+    function getRutasDisponibles() {
+      const rutas = [...new Set(
+        state.clientes
+          .map(c => normalize(c.ruta))
+          .filter(Boolean)
+      )];
+
+      return rutas.sort((a, b) => {
+        const na = Number(a);
+        const nb = Number(b);
+        if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
+        return a.localeCompare(b, "es");
+      });
+    }
+
+    function buildRouteSelect() {
+      const rutas = getRutasDisponibles();
+
+      routeSelect.innerHTML =
+        `<option value="">Todas las rutas</option>` +
+        rutas.map(r => `<option value="${escapeHtml(r)}">Ruta ${escapeHtml(r)}</option>`).join("");
+
+      routeSelect.value = state.rutaActual;
+    }
+
+    function clientesFiltradosBase() {
+      return state.clientes.filter(c => {
+        if (state.rutaActual && c.ruta !== state.rutaActual) return false;
+        return true;
+      });
+    }
+
     function buildClientSelect() {
       const term = slug(searchClient.value);
 
-      const filtrados = state.clientes.filter(c => {
+      const filtrados = clientesFiltradosBase().filter(c => {
         if (!term) return true;
         return slug(c.numero).includes(term) || slug(c.cliente).includes(term);
       });
@@ -990,6 +1030,9 @@
 
       if (state.clienteActual && filtrados.some(c => c.numero === state.clienteActual)) {
         clientSelect.value = state.clienteActual;
+      } else {
+        state.clienteActual = "";
+        clientSelect.value = "";
       }
     }
 
@@ -1069,7 +1112,7 @@
     function actualizarScore(cliente, compradosSet) {
       if (!cliente) {
         scoreCard.style.display = "none";
-        miniRuta.textContent = "-";
+        miniRuta.textContent = state.rutaActual || "-";
         miniCategoria.textContent = nombreCat(state.categoriaActual);
         return;
       }
@@ -1124,9 +1167,15 @@
         clienteInfo.style.display = "none";
         resumen.style.display = "none";
         scoreCard.style.display = "none";
-        miniRuta.textContent = "-";
+        miniRuta.textContent = state.rutaActual || "-";
         miniCategoria.textContent = nombreCat(state.categoriaActual);
-        productos.innerHTML = `<div class="muted">Seleccioná un cliente para ver el detalle.</div>`;
+
+        if (state.rutaActual) {
+          productos.innerHTML = `<div class="muted">Seleccioná un cliente de la ruta ${escapeHtml(state.rutaActual)} para ver el detalle.</div>`;
+        } else {
+          productos.innerHTML = `<div class="muted">Seleccioná una ruta o un cliente para ver el detalle.</div>`;
+        }
+
         updateBadges([]);
         return;
       }
@@ -1194,7 +1243,18 @@
       badgeMissing.textContent = `Pendientes: ${pendientes}`;
     }
 
-    searchClient.addEventListener("input", buildClientSelect);
+    routeSelect.addEventListener("change", () => {
+      state.rutaActual = routeSelect.value;
+      state.clienteActual = "";
+      buildClientSelect();
+      render();
+    });
+
+    searchClient.addEventListener("input", () => {
+      buildClientSelect();
+      render();
+    });
+
     clientSelect.addEventListener("change", render);
     searchProduct.addEventListener("input", render);
 
@@ -1205,6 +1265,9 @@
       searchProduct.value = "";
       state.clienteActual = "";
       state.categoriaActual = "TODOS";
+      state.rutaActual = "";
+      routeSelect.value = "";
+      buildRouteSelect();
       buildClientSelect();
       buildTabs();
       render();
