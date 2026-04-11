@@ -1096,29 +1096,31 @@
     }
 
     function getCategoriaStats(cat, compradosSet) {
-      const lista = unique(state.categorias[cat] || []);
-      const objetivo = OBJETIVOS[cat] || lista.length;
-      const avanceReal = lista.filter(p => compradosSet.has(p)).length;
-      const avanceTope = Math.min(avanceReal, objetivo);
-      const porcentaje = objetivo ? Math.round((avanceTope / objetivo) * 100) : 0;
-      const cumplio = avanceReal >= objetivo;
-      const puntos = cumplio ? PUNTOS_POR_CATEGORIA : 0;
+      function getCategoriaStats(cat, compradosSet) {
+  const lista = unique(state.categorias[cat] || []);
+  const objetivo = OBJETIVOS[cat] || lista.length;
+  const avanceReal = lista.filter(p => compradosSet.has(p)).length;
+  const avanceTope = Math.min(avanceReal, objetivo);
+  const porcentaje = objetivo ? Math.round((avanceTope / objetivo) * 100) : 0;
+  const cumplio = avanceReal >= objetivo;
+  const puntos = cumplio ? PUNTOS_POR_CATEGORIA : 0;
 
-      let pillClass = "no";
-      if (porcentaje >= 80) pillClass = "ok";
-      else if (porcentaje >= 40) pillClass = "mid";
+  let pillClass = "no";
+  if (porcentaje >= 100) pillClass = "ok";
+  else if (porcentaje >= 80) pillClass = "mid";
+  else pillClass = "no";
 
-      return {
-        cat,
-        objetivo,
-        avanceReal,
-        avanceTope,
-        porcentaje,
-        cumplio,
-        puntos,
-        pillClass
-      };
-    }
+  return {
+    cat,
+    objetivo,
+    avanceReal,
+    avanceTope,
+    porcentaje,
+    cumplio,
+    puntos,
+    pillClass
+  };
+}
 
     function renderResumen(compradosSet) {
       if (!state.clienteActual) {
