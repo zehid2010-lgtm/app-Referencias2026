@@ -84,17 +84,6 @@
       pointer-events:none;
     }
 
-    .logo-text{
-      position:relative;
-      z-index:1;
-      font-family:'Brush Script MT','Segoe Script',cursive;
-      font-size:52px;
-      line-height:1;
-      text-align:center;
-      text-shadow:0 2px 10px rgba(0,0,0,.18);
-      margin-bottom:10px;
-    }
-
     .header h1{
       position:relative;
       z-index:1;
@@ -658,21 +647,6 @@
       box-shadow:0 8px 18px rgba(18,140,126,.22);
     }
 
-    .wa-cats{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px;
-    }
-
-    .wa-cat-btn{
-      color:#1f2937;
-      background:linear-gradient(135deg, #f5f7fb, #eceff5);
-      border:1px solid var(--borde);
-      padding:12px 10px;
-      font-size:13px;
-      font-weight:800;
-    }
-
     .footer-note{
       margin-top:14px;
       text-align:center;
@@ -809,13 +783,7 @@
       </div>
 
       <div class="whatsapp-actions" id="whatsappActions">
-        <button id="btnWhatsappGeneral" class="wa-main">Enviar resumen completo por WhatsApp</button>
-        <div class="wa-cats">
-          <button class="wa-cat-btn" data-wa-cat="COLAS">Enviar Colas</button>
-          <button class="wa-cat-btn" data-wa-cat="SABORES">Enviar Sabores</button>
-          <button class="wa-cat-btn" data-wa-cat="STILLS">Enviar Stills</button>
-          <button class="wa-cat-btn" data-wa-cat="MULTICATEGORIAS">Enviar Multicategorías</button>
-        </div>
+        <button id="btnWhatsappGeneral" class="wa-main">Enviar avance de referencias por WhatsApp</button>
       </div>
 
       <div class="card">
@@ -1249,6 +1217,7 @@
 
       if (!state.clienteActual) {
         clienteInfo.style.display = "none";
+        whatsappActions.style.display = "none";
         resumen.style.display = "none";
         scoreCard.style.display = "none";
         miniRuta.textContent = state.rutaActual || "-";
@@ -1323,33 +1292,6 @@
       badgeMissing.textContent = `Pendientes: ${pendientes}`;
     }
 
-    function estadoTextoPorcentaje(porcentaje) {
-      if (porcentaje >= 100) return "Cumplido";
-      if (porcentaje >= 80) return "Avance alto";
-      return "Oportunidad";
-    }
-
-    function armarTextoWhatsappCategoria(cliente, cat, compradosSet) {
-      const stats = getCategoriaStats(cat, compradosSet);
-      const lista = unique(state.categorias[cat] || []);
-      const pendientes = lista.filter(p => !compradosSet.has(p));
-      const icono = stats.cumplio ? "✅" : (stats.porcentaje >= 80 ? "🟡" : "🔴");
-
-      return [
-        `*Avance ${nombreCat(cat)}*`,
-        `Cliente: *${cliente.numero} - ${cliente.cliente}*`,
-        `Ruta: *${cliente.ruta || "-"}*`,
-        `Vendedor: *${cliente.vendedor || "-"}*`,
-        `${icono} Avance: *${stats.avanceReal}/${stats.objetivo}* referencias`,
-        `Cumplimiento: *${stats.porcentaje}%*`,
-        `Estado: *${estadoTextoPorcentaje(stats.porcentaje)}*`,
-        `Puntos: *${stats.puntos}*`,
-        pendientes.length
-          ? `Pendientes: ${pendientes.slice(0, 15).join(", ")}${pendientes.length > 15 ? "..." : ""}`
-          : `Pendientes: Sin pendientes en esta categoría`
-      ].join("\n");
-    }
-
     function armarTextoWhatsappGeneral(cliente, compradosSet) {
       const categorias = ["COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"];
       const stats = categorias.map(cat => getCategoriaStats(cat, compradosSet));
@@ -1376,16 +1318,14 @@
       ].join("\n");
     }
 
-    function enviarWhatsapp(tipoCat = null) {
+    function enviarWhatsapp() {
       if (!state.clienteActual) return;
 
       const cliente = state.clientes.find(x => x.numero === state.clienteActual);
       if (!cliente) return;
 
       const compradosSet = getComprados(state.clienteActual);
-      const texto = tipoCat
-        ? armarTextoWhatsappCategoria(cliente, tipoCat, compradosSet)
-        : armarTextoWhatsappGeneral(cliente, compradosSet);
+      const texto = armarTextoWhatsappGeneral(cliente, compradosSet);
 
       const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
       window.open(url, "_blank");
@@ -1406,14 +1346,7 @@
     clientSelect.addEventListener("change", render);
 
     btnReload.addEventListener("click", cargarDatosDesdeDrive);
-
     btnWhatsappGeneral.addEventListener("click", () => enviarWhatsapp());
-
-    document.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-wa-cat]");
-      if (!btn) return;
-      enviarWhatsapp(btn.dataset.waCat);
-    });
 
     btnClear.addEventListener("click", () => {
       searchClient.value = "";
