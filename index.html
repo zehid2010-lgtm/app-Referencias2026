@@ -197,6 +197,33 @@
       border:1px solid var(--borde);
     }
 
+    .btn-whatsapp{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      color:#fff;
+      background:linear-gradient(135deg, #25D366, #128C7E);
+      box-shadow:0 8px 18px rgba(37,211,102,.22);
+    }
+
+    .btn-whatsapp:hover{
+      filter:brightness(1.03);
+    }
+
+    .wa-icon{
+      width:28px;
+      height:28px;
+      border-radius:50%;
+      background:rgba(255,255,255,.18);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:15px;
+      font-weight:900;
+      flex:0 0 28px;
+    }
+
     .actions{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -776,8 +803,9 @@
             <h3 id="clienteNombre"></h3>
             <p id="clienteMeta"></p>
             <div style="margin-top:12px;">
-              <button id="btnWhatsappReporte" class="btn-primary" style="display:none;">
-                Enviar reporte completo por WhatsApp
+              <button id="btnWhatsappReporte" class="btn-whatsapp" style="display:none;">
+                <span class="wa-icon">✆</span>
+                <span>Enviar reporte completo por WhatsApp</span>
               </button>
             </div>
           </div>
@@ -1282,7 +1310,7 @@
 
       if (cliente) {
         clienteInfo.style.display = "block";
-        if (btnWhatsappReporte) btnWhatsappReporte.style.display = "block";
+        if (btnWhatsappReporte) btnWhatsappReporte.style.display = "flex";
         clienteNombre.textContent = `${cliente.numero} - ${cliente.cliente}`;
         clienteMeta.textContent = `Vendedor: ${cliente.vendedor || "-"} · Categoría visible: ${nombreCat(state.categoriaActual)}`;
         routePill.textContent = `Ruta ${cliente.ruta || "-"}`;
