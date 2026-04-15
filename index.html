@@ -774,6 +774,11 @@
           <div>
             <h3 id="clienteNombre"></h3>
             <p id="clienteMeta"></p>
+            <div style="margin-top:12px;">
+              <button id="btnWhatsappReporte" class="btn-primary" style="display:none;">
+                Enviar reporte completo por WhatsApp
+              </button>
+            </div>
           </div>
           <div class="route-pill" id="routePill">Ruta -</div>
         </div>
@@ -862,6 +867,7 @@
     const clienteNombre = $("clienteNombre");
     const clienteMeta = $("clienteMeta");
     const routePill = $("routePill");
+    const btnWhatsappReporte = $("btnWhatsappReporte");
 
     const scoreCard = $("scoreCard");
     const scoreValor = $("scoreValor");
@@ -1127,6 +1133,56 @@
     pillClass
   };
 }
+    function generarReporteWhatsapp(cliente, compradosSet) {
+      const stats = ["COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"].map(cat =>
+        getCategoriaStats(cat, compradosSet)
+      );
+
+      const puntosTotal = stats.reduce((acc, item) => acc + item.puntos, 0);
+
+      let mensaje = `📊 *REPORTE COMPLETO DE REFERENCIAS*
+
+`;
+      mensaje += `🏪 *Cliente:* ${cliente.cliente}
+`;
+      mensaje += `🔢 *Número:* ${cliente.numero}
+`;
+      mensaje += `📍 *Ruta:* ${cliente.ruta || "-"}
+`;
+      mensaje += `👤 *Vendedor:* ${cliente.vendedor || "-"}
+
+`;
+
+      stats.forEach(item => {
+        const pendientes = unique(state.categorias[item.cat] || []).filter(p => !compradosSet.has(p));
+        mensaje += `*${nombreCat(item.cat).toUpperCase()}*
+`;
+        mensaje += `✅ Avance: ${item.avanceReal}/${item.objetivo}
+`;
+        mensaje += `📈 Cumplimiento: ${item.porcentaje}%
+`;
+        mensaje += `🏅 Puntos: ${item.puntos}/${PUNTOS_POR_CATEGORIA}
+`;
+
+        if (pendientes.length) {
+          mensaje += `❌ Pendientes:
+- ${pendientes.join("
+- ")}
+`;
+        } else {
+          mensaje += `✅ Sin pendientes
+`;
+        }
+
+        mensaje += `
+`;
+      });
+
+      mensaje += `🏆 *TOTAL:* ${puntosTotal}/${PUNTAJE_TOTAL} puntos`;
+
+      return mensaje;
+    }
+
     function renderResumen(compradosSet) {
       if (!state.clienteActual) {
         resumen.style.display = "none";
@@ -1197,6 +1253,7 @@
 
       if (!state.clientes.length) {
         clienteInfo.style.display = "none";
+        if (btnWhatsappReporte) btnWhatsappReporte.style.display = "none";
         resumen.style.display = "none";
         scoreCard.style.display = "none";
         productos.innerHTML = `<div class="muted">No hay datos cargados.</div>`;
@@ -1206,6 +1263,7 @@
 
       if (!state.clienteActual) {
         clienteInfo.style.display = "none";
+        if (btnWhatsappReporte) btnWhatsappReporte.style.display = "none";
         resumen.style.display = "none";
         scoreCard.style.display = "none";
         miniRuta.textContent = state.rutaActual || "-";
@@ -1237,6 +1295,7 @@
 
       if (cliente) {
         clienteInfo.style.display = "block";
+        if (btnWhatsappReporte) btnWhatsappReporte.style.display = "block";
         clienteNombre.textContent = `${cliente.numero} - ${cliente.cliente}`;
         clienteMeta.textContent = `Vendedor: ${cliente.vendedor || "-"} · Categoría visible: ${nombreCat(state.categoriaActual)}`;
         routePill.textContent = `Ruta ${cliente.ruta || "-"}`;
@@ -1307,6 +1366,25 @@
       render();
       hideError();
       hideInfo();
+    });
+
+    btnWhatsappReporte.addEventListener("click", () => {
+      if (!state.clienteActual) {
+        showError("Primero seleccioná un cliente.");
+        return;
+      }
+
+      const cliente = state.clientes.find(x => x.numero === state.clienteActual);
+      if (!cliente) {
+        showError("No se encontró el cliente seleccionado.");
+        return;
+      }
+
+      hideError();
+      const compradosSet = getComprados(state.clienteActual);
+      const mensaje = generarReporteWhatsapp(cliente, compradosSet);
+      const url = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+      window.open(url, "_blank");
     });
 
     buildTabs();
