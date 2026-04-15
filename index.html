@@ -1,1473 +1,174 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Referencias por Cliente</title>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <style>
-    :root{
-      --rojo:#d6001c;
-      --rojo-2:#b10018;
-      --rojo-suave:#fff1f3;
-      --verde:#16823a;
-      --verde-suave:#edf9f0;
-      --amarillo:#d88a00;
-      --amarillo-suave:#fff6e7;
-      --gris-fondo:#f4f6fb;
-      --gris-card:#ffffff;
-      --gris-texto:#1d2433;
-      --gris-sub:#6b7280;
-      --borde:#e7eaf0;
-      --sombra:0 10px 30px rgba(17,24,39,.08);
-      --radius-xl:24px;
-      --radius-lg:18px;
-      --radius-md:14px;
-
-      --wa1:#25D366;
-      --wa2:#128C7E;
-      --wa3:#0f6d62;
-    }
-
-    *{box-sizing:border-box}
-
-    html,body{
-      margin:0;
-      padding:0;
-      font-family:Arial,Helvetica,sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(214,0,28,.08), transparent 28%),
-        radial-gradient(circle at top right, rgba(214,0,28,.05), transparent 24%),
-        var(--gris-fondo);
-      color:var(--gris-texto);
-    }
-
-    body{min-height:100vh}
-
-    .app{
-      max-width:620px;
-      margin:0 auto;
-      min-height:100vh;
-      padding-bottom:110px;
-    }
-
-    .header{
-      position:relative;
-      overflow:hidden;
-      padding:28px 18px 24px;
-      background:
-        linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.03)),
-        linear-gradient(135deg, var(--rojo), var(--rojo-2));
-      color:#fff;
-      border-bottom-left-radius:28px;
-      border-bottom-right-radius:28px;
-      box-shadow:0 12px 28px rgba(214,0,28,.22);
-    }
-
-    .header::before{
-      content:"";
-      position:absolute;
-      top:-60px;
-      right:-60px;
-      width:180px;
-      height:180px;
-      background:radial-gradient(circle, rgba(255,255,255,.18) 0%, transparent 65%);
-      border-radius:50%;
-      pointer-events:none;
-    }
-
-    .header::after{
-      content:"";
-      position:absolute;
-      bottom:-80px;
-      left:-60px;
-      width:220px;
-      height:220px;
-      background:radial-gradient(circle, rgba(255,255,255,.12) 0%, transparent 65%);
-      border-radius:50%;
-      pointer-events:none;
-    }
-
-    .header h1{
-      position:relative;
-      z-index:1;
-      margin:0;
-      text-align:center;
-      font-size:26px;
-      line-height:1.15;
-      font-weight:800;
-      letter-spacing:.2px;
-    }
-
-    .header p{
-      position:relative;
-      z-index:1;
-      margin:8px 0 0;
-      text-align:center;
-      font-size:14px;
-      opacity:.96;
-    }
-
-    .content{
-      padding:14px;
-      margin-top:-8px;
-    }
-
-    .card{
-      background:var(--gris-card);
-      border:1px solid rgba(255,255,255,.65);
-      border-radius:var(--radius-xl);
-      padding:14px;
-      margin-bottom:14px;
-      box-shadow:var(--sombra);
-      backdrop-filter:blur(8px);
-    }
-
-    .card-title{
-      font-size:15px;
-      font-weight:800;
-      color:var(--gris-texto);
-      margin:0 0 12px;
-      letter-spacing:.2px;
-    }
-
-    .label{
-      display:block;
-      font-size:12px;
-      font-weight:800;
-      color:#5b6472;
-      margin:0 0 7px;
-      text-transform:uppercase;
-      letter-spacing:.55px;
-    }
-
-    .grid{
-      display:grid;
-      gap:12px;
-    }
-
-    input,select,button{
-      width:100%;
-      border-radius:16px;
-      font-size:15px;
-      font-family:inherit;
-    }
-
-    input,select{
-      border:1px solid var(--borde);
-      background:#fff;
-      padding:13px 14px;
-      color:var(--gris-texto);
-      outline:none;
-      transition:.18s ease;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
-    }
-
-    input:focus,select:focus{
-      border-color:#f3a4af;
-      box-shadow:0 0 0 4px rgba(214,0,28,.08);
-    }
-
-    button{
-      border:none;
-      padding:13px 14px;
-      font-weight:800;
-      cursor:pointer;
-      transition:transform .12s ease, box-shadow .18s ease, opacity .18s ease, filter .18s ease;
-    }
-
-    button:active{transform:scale(.99)}
-
-    .btn-primary{
-      color:#fff;
-      background:linear-gradient(135deg, var(--rojo), var(--rojo-2));
-      box-shadow:0 8px 18px rgba(214,0,28,.22);
-    }
-
-    .btn-secondary{
-      color:#374151;
-      background:linear-gradient(135deg, #f5f7fb, #eceff5);
-      border:1px solid var(--borde);
-    }
-
-    .btn-whatsapp{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      color:#fff;
-      background:linear-gradient(135deg, var(--wa1), var(--wa2));
-      box-shadow:0 10px 24px rgba(37,211,102,.28);
-      position:relative;
-      overflow:hidden;
-    }
-
-    .btn-whatsapp::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,0));
-      pointer-events:none;
-    }
-
-    .btn-whatsapp:hover{
-      filter:brightness(1.03);
-      box-shadow:0 14px 28px rgba(37,211,102,.33);
-    }
-
-    .wa-icon{
-      width:30px;
-      height:30px;
-      border-radius:50%;
-      background:rgba(255,255,255,.18);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex:0 0 30px;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.28);
-      position:relative;
-      z-index:1;
-    }
-
-    .wa-icon img{
-      width:17px;
-      height:17px;
-      object-fit:contain;
-      display:block;
-    }
-
-    .wa-text{
-      position:relative;
-      z-index:1;
-    }
-
-    .actions{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top:12px;
-    }
-
-    .badges{
-      display:grid;
-      grid-template-columns:repeat(3, 1fr);
-      gap:10px;
-      margin-top:12px;
-    }
-
-    .badge{
-      border-radius:18px;
-      padding:12px 10px;
-      text-align:center;
-      font-size:13px;
-      font-weight:800;
-      background:#f6f7fb;
-      border:1px solid #edf0f5;
-      color:#2a3342;
-      box-shadow:0 4px 10px rgba(17,24,39,.04);
-    }
-
-    .badge.ok{
-      background:var(--verde-suave);
-      color:var(--verde);
-      border-color:#d6ecd9;
-    }
-
-    .badge.no{
-      background:var(--rojo-suave);
-      color:var(--rojo);
-      border-color:#ffd8de;
-    }
-
-    .msg{
-      display:none;
-      margin-top:12px;
-      padding:12px 14px;
-      border-radius:14px;
-      font-size:13px;
-      font-weight:700;
-    }
-
-    .msg.error{
-      background:#fff3f4;
-      border:1px solid #ffd6db;
-      color:#9a1b2b;
-    }
-
-    .msg.info{
-      background:#f7f8fb;
-      border:1px solid #e7ebf2;
-      color:#3f4a5d;
-    }
-
-    .hero-grid{
-      display:grid;
-      grid-template-columns:1.2fr .8fr;
-      gap:12px;
-      margin-bottom:14px;
-    }
-
-    .score-card{
-      background:
-        linear-gradient(135deg, rgba(255,255,255,.22), rgba(255,255,255,.06)),
-        linear-gradient(135deg, #ffffff, #f8f9fd);
-      border:1px solid #eef1f6;
-      border-radius:26px;
-      padding:18px 16px;
-      box-shadow:var(--sombra);
-      min-height:145px;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:flex-start;
-    }
-
-    .score-label{
-      font-size:12px;
-      font-weight:800;
-      text-transform:uppercase;
-      letter-spacing:.7px;
-      color:#7b8494;
-      margin-bottom:4px;
-    }
-
-    .score-valor{
-      font-size:48px;
-      line-height:1;
-      font-weight:900;
-      margin:4px 0 8px;
-      letter-spacing:-1px;
-    }
-
-    .score-estado{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      min-height:36px;
-      padding:8px 12px;
-      border-radius:999px;
-      font-size:13px;
-      font-weight:800;
-      background:#f5f7fb;
-      color:#374151;
-    }
-
-    .mini-panel{
-      display:grid;
-      gap:12px;
-    }
-
-    .mini-kpi{
-      background:#fff;
-      border:1px solid #eef1f6;
-      border-radius:22px;
-      padding:16px 14px;
-      box-shadow:var(--sombra);
-      min-height:66px;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-    }
-
-    .mini-kpi .kpi-title{
-      font-size:12px;
-      font-weight:800;
-      color:#7a8392;
-      text-transform:uppercase;
-      letter-spacing:.55px;
-      margin-bottom:6px;
-    }
-
-    .mini-kpi .kpi-value{
-      font-size:24px;
-      font-weight:900;
-      line-height:1;
-      color:#1f2937;
-    }
-
-    .cliente-info{
-      display:none;
-      border-radius:22px;
-      padding:16px;
-      margin-bottom:14px;
-      background:
-        linear-gradient(135deg, rgba(214,0,28,.04), rgba(214,0,28,.01)),
-        #fff;
-      border:1px solid #f2e1e4;
-      box-shadow:var(--sombra);
-    }
-
-    .cliente-top{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:10px;
-    }
-
-    .cliente-info h3{
-      margin:0;
-      font-size:18px;
-      line-height:1.2;
-    }
-
-    .cliente-info p{
-      margin:8px 0 0;
-      font-size:13px;
-      color:var(--gris-sub);
-      line-height:1.4;
-    }
-
-    .route-pill{
-      white-space:nowrap;
-      padding:9px 12px;
-      border-radius:999px;
-      background:#fff;
-      border:1px solid #f1d5d9;
-      color:var(--rojo);
-      font-size:12px;
-      font-weight:800;
-      box-shadow:0 4px 10px rgba(214,0,28,.06);
-    }
-
-    .section-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:10px;
-    }
-
-    .section-head h2{
-      margin:0;
-      font-size:16px;
-      font-weight:900;
-      color:#172033;
-    }
-
-    .section-head span{
-      font-size:12px;
-      font-weight:800;
-      color:#7b8494;
-      text-transform:uppercase;
-      letter-spacing:.55px;
-    }
-
-    .tabs{
-      display:flex;
-      gap:8px;
-      overflow:auto;
-      padding-bottom:3px;
-      margin-bottom:12px;
-      scrollbar-width:thin;
-    }
-
-    .tab{
-      min-width:max-content;
-      border:1px solid #e6e9f0;
-      background:#f7f8fb;
-      color:#3a4456;
-      border-radius:999px;
-      padding:10px 16px;
-      font-size:13px;
-      font-weight:800;
-      cursor:pointer;
-      transition:.18s ease;
-    }
-
-    .tab.active{
-      background:linear-gradient(135deg, var(--rojo), var(--rojo-2));
-      color:#fff;
-      border-color:transparent;
-      box-shadow:0 8px 18px rgba(214,0,28,.18);
-    }
-
-    .resumen{
-      display:none;
-      gap:10px;
-      overflow-x:auto;
-      padding-bottom:4px;
-      margin:0 0 14px;
-      scrollbar-width:thin;
-    }
-
-    .resumen-item{
-      min-width:190px;
-      flex:0 0 auto;
-      border-radius:20px;
-      padding:14px;
-      background:#fff;
-      border:1px solid #edf0f5;
-      box-shadow:0 6px 16px rgba(17,24,39,.05);
-    }
-
-    .resumen-top{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      margin-bottom:10px;
-    }
-
-    .resumen-label{
-      font-size:14px;
-      font-weight:900;
-      color:#172033;
-    }
-
-    .resumen-pill{
-      min-width:64px;
-      text-align:center;
-      border-radius:999px;
-      padding:7px 12px;
-      font-size:12px;
-      font-weight:900;
-      border:1px solid transparent;
-    }
-
-    .resumen-pill.ok{
-      background:var(--verde-suave);
-      color:var(--verde);
-      border-color:#d6ecd9;
-    }
-
-    .resumen-pill.mid{
-      background:var(--amarillo-suave);
-      color:var(--amarillo);
-      border-color:#f2ddb5;
-    }
-
-    .resumen-pill.no{
-      background:var(--rojo-suave);
-      color:var(--rojo);
-      border-color:#ffd6db;
-    }
-
-    .puntos-pill{
-      margin-top:10px;
-      display:inline-block;
-      padding:6px 10px;
-      border-radius:999px;
-      font-size:11px;
-      font-weight:800;
-      background:#f4f6fb;
-      color:#1f2937;
-      border:1px solid #e3e8f0;
-    }
-
-    .puntos-pill.ok{
-      background:var(--verde-suave);
-      color:var(--verde);
-      border-color:#d6ecd9;
-    }
-
-    .resumen-meta{
-      margin-top:8px;
-      font-size:12px;
-      color:#697386;
-      font-weight:700;
-    }
-
-    .progress-bar{
-      height:8px;
-      background:#eef2f7;
-      border-radius:999px;
-      overflow:hidden;
-      margin-top:10px;
-    }
-
-    .progress-fill{
-      height:100%;
-      border-radius:999px;
-      transition:width .25s ease;
-    }
-
-    .progress-fill.ok{background:linear-gradient(90deg,#1aa048,#16823a)}
-    .progress-fill.mid{background:linear-gradient(90deg,#f0aa20,#d88a00)}
-    .progress-fill.no{background:linear-gradient(90deg,#f24a5f,#d6001c)}
-
-    .list{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-
-    .item{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      border-radius:20px;
-      padding:14px;
-      background:#fff;
-      border:1px solid #edf0f5;
-      box-shadow:0 6px 16px rgba(17,24,39,.05);
-      transition:transform .12s ease, box-shadow .18s ease;
-    }
-
-    .item:hover{
-      transform:translateY(-1px);
-      box-shadow:0 10px 22px rgba(17,24,39,.08);
-    }
-
-    .item-main{
-      min-width:0;
-      display:flex;
-      align-items:flex-start;
-      gap:10px;
-    }
-
-    .item-icon{
-      width:34px;
-      height:34px;
-      flex:0 0 34px;
-      border-radius:12px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:17px;
-      font-weight:900;
-      background:#f6f7fb;
-      border:1px solid #edf0f5;
-    }
-
-    .item-ok .item-icon{
-      background:var(--verde-suave);
-      border-color:#d6ecd9;
-    }
-
-    .item-no .item-icon{
-      background:var(--rojo-suave);
-      border-color:#ffd6db;
-    }
-
-    .item-name{
-      font-size:14px;
-      font-weight:800;
-      line-height:1.3;
-      color:#172033;
-      word-break:break-word;
-    }
-
-    .item-cat{
-      margin-top:5px;
-      font-size:12px;
-      color:#7b8494;
-      font-weight:700;
-    }
-
-    .state{
-      min-width:102px;
-      text-align:center;
-      padding:10px 12px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:900;
-      border:1px solid transparent;
-      white-space:nowrap;
-    }
-
-    .state-ok{
-      background:var(--verde-suave);
-      color:var(--verde);
-      border-color:#d6ecd9;
-    }
-
-    .state-no{
-      background:var(--rojo-suave);
-      color:var(--rojo);
-      border-color:#ffd6db;
-    }
-
-    .muted{
-      text-align:center;
-      color:#7a8392;
-      font-size:13px;
-      font-weight:700;
-      padding:18px 10px;
-      background:#fff;
-      border:1px dashed #e4e8ef;
-      border-radius:18px;
-    }
-
-    .footer-note{
-      margin-top:14px;
-      text-align:center;
-      color:#8a93a3;
-      font-size:11px;
-      font-weight:700;
-      letter-spacing:.2px;
-    }
-
-    .floating-wa{
-      position:fixed;
-      right:18px;
-      bottom:18px;
-      width:60px;
-      height:60px;
-      border:none;
-      border-radius:50%;
-      background:linear-gradient(135deg, var(--wa1), var(--wa2));
-      box-shadow:0 16px 30px rgba(37,211,102,.35);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:999;
-    }
-
-    .floating-wa img{
-      width:28px;
-      height:28px;
-      object-fit:contain;
-    }
-
-    .floating-wa:hover{
-      transform:translateY(-2px);
-      filter:brightness(1.03);
-    }
-
-    @media (max-width:560px){
-      .hero-grid{
-        grid-template-columns:1fr;
-      }
-
-      .score-card{
-        align-items:center;
-        text-align:center;
-      }
-
-      .mini-panel{
-        grid-template-columns:1fr 1fr;
-      }
-
-      .cliente-top{
-        flex-direction:column;
-      }
-
-      .route-pill{
-        align-self:flex-start;
-      }
-
-      .badges{
-        grid-template-columns:1fr;
-      }
-
-      .actions{
-        grid-template-columns:1fr;
-      }
-
-      .item{
-        align-items:flex-start;
-      }
-
-      .state{
-        min-width:88px;
-      }
-
-      .floating-wa{
-        width:58px;
-        height:58px;
-        right:14px;
-        bottom:14px;
-      }
-    }
-
-    .logo-img{
-      display:block;
-      margin:0 auto 10px;
-      height:80px;
-      object-fit:contain;
-      filter: brightness(0) invert(1) drop-shadow(0 4px 12px rgba(0,0,0,.4));
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Referencias por Cliente</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  margin: 0;
+  padding: 10px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.titulo {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.sub {
+  font-size: 13px;
+  color: #666;
+}
+
+.ruta {
+  float: right;
+  background: #ffe5e5;
+  color: #d90000;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.btn-whatsapp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #25D366;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-whatsapp img {
+  width: 20px;
+}
+
+.resumen {
+  display: flex;
+  overflow-x: auto;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.box {
+  min-width: 120px;
+  background: #fafafa;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.verde { color: green; }
+.amarillo { color: orange; }
+.rojo { color: red; }
+
+</style>
 </head>
+
 <body>
-  <div class="app">
-    <div class="header">
-      <img src="logo.png" class="logo-img" />
-      <h1>Referencias por Cliente</h1>
-      <p>Seguimiento premium de compra por categoría y ruta</p>
-    </div>
 
-    <div class="content">
-      <div class="card">
-        <div class="card-title">Filtro de búsqueda</div>
-
-        <div class="grid">
-          <div>
-            <label class="label" for="routeSelect">Ruta</label>
-            <select id="routeSelect">
-              <option value="">Todas las rutas</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="label" for="searchClient">Buscar cliente o número</label>
-            <input id="searchClient" type="text" placeholder="Ej: 3100979 o nombre del cliente" />
-          </div>
-
-          <div>
-            <label class="label" for="clientSelect">Cliente</label>
-            <select id="clientSelect">
-              <option value="">Seleccionar cliente</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button id="btnReload" class="btn-primary">Actualizar datos</button>
-          <button id="btnClear" class="btn-secondary">Limpiar filtros</button>
-        </div>
-
-        <div class="badges">
-          <div class="badge" id="badgeTotal">Total: 0</div>
-          <div class="badge ok" id="badgeBought">Comprados: 0</div>
-          <div class="badge no" id="badgeMissing">Pendientes: 0</div>
-        </div>
-
-        <div id="infoMsg" class="msg info"></div>
-        <div id="errorMsg" class="msg error"></div>
-      </div>
-
-      <div class="hero-grid">
-        <div id="scoreCard" class="score-card" style="display:none;">
-          <div class="score-label">Score total por categorías cumplidas</div>
-          <div id="scoreValor" class="score-valor">0</div>
-          <div id="scoreEstado" class="score-estado">0 de 20 puntos</div>
-        </div>
-
-        <div class="mini-panel">
-          <div class="mini-kpi">
-            <div class="kpi-title">Categoría activa</div>
-            <div class="kpi-value" id="miniCategoria">Todos</div>
-          </div>
-
-          <div class="mini-kpi">
-            <div class="kpi-title">Ruta</div>
-            <div class="kpi-value" id="miniRuta">-</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="cliente-info" id="clienteInfo">
-        <div class="cliente-top">
-          <div>
-            <h3 id="clienteNombre"></h3>
-            <p id="clienteMeta"></p>
-            <div style="margin-top:12px;">
-              <button id="btnWhatsappReporte" class="btn-whatsapp" style="display:none;">
-                <span class="wa-icon">
-                  <img src="whatsapp.png" alt="WhatsApp">
-                </span>
-                <span class="wa-text">Enviar reporte completo por WhatsApp</span>
-              </button>
-            </div>
-          </div>
-          <div class="route-pill" id="routePill">Ruta -</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="section-head">
-          <h2>Resumen comercial</h2>
-          <span>Vista ejecutiva</span>
-        </div>
-
-        <div class="tabs" id="tabs"></div>
-        <div id="resumen" class="resumen"></div>
-
-        <div class="section-head" style="margin-top:6px;">
-          <h2>Detalle de productos</h2>
-          <span id="detailLabel">Todos</span>
-        </div>
-
-        <div id="productos" class="list">
-          <div class="muted">Cargando datos desde Drive...</div>
-        </div>
-
-        <div class="footer-note">Vista premium de cobertura por cliente y ruta</div>
-      </div>
-    </div>
-  </div>
-
-  <button id="floatingWhatsappBtn" class="floating-wa" title="Enviar por WhatsApp" style="display:none;">
-    <img src="whatsapp.png" alt="WhatsApp">
-  </button>
-
-  <script>
-    const SHEET_ID = "1SQAHZLQmBjkGeac7sEg9ChFQdwOVClcT";
-
-    const URLS = {
-      clientes: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1063039588`,
-      compras: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1594103549`,
-      colas: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=626208758`,
-      sabores: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=540553642`,
-      stills: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=317922023`,
-      multicategorias: `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=1454901180`
-    };
-
-    const state = {
-      clientes: [],
-      compras: [],
-      categorias: {
-        COLAS: [],
-        SABORES: [],
-        STILLS: [],
-        MULTICATEGORIAS: []
-      },
-      clienteActual: "",
-      categoriaActual: "TODOS",
-      rutaActual: ""
-    };
-
-    const CATS = ["TODOS", "COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"];
-
-    const OBJETIVOS = {
-      COLAS: 15,
-      SABORES: 12,
-      STILLS: 20,
-      MULTICATEGORIAS: 5
-    };
-
-    const PUNTOS_POR_CATEGORIA = 5;
-    const PUNTAJE_TOTAL = 20;
-
-    const $ = (id) => document.getElementById(id);
-
-    const routeSelect = $("routeSelect");
-    const searchClient = $("searchClient");
-    const clientSelect = $("clientSelect");
-    const btnReload = $("btnReload");
-    const btnClear = $("btnClear");
-
-    const badgeTotal = $("badgeTotal");
-    const badgeBought = $("badgeBought");
-    const badgeMissing = $("badgeMissing");
-
-    const infoMsg = $("infoMsg");
-    const errorMsg = $("errorMsg");
-    const tabs = $("tabs");
-    const resumen = $("resumen");
-    const productos = $("productos");
-
-    const clienteInfo = $("clienteInfo");
-    const clienteNombre = $("clienteNombre");
-    const clienteMeta = $("clienteMeta");
-    const routePill = $("routePill");
-    const btnWhatsappReporte = $("btnWhatsappReporte");
-    const floatingWhatsappBtn = $("floatingWhatsappBtn");
-
-    const scoreCard = $("scoreCard");
-    const scoreValor = $("scoreValor");
-    const scoreEstado = $("scoreEstado");
-    const miniCategoria = $("miniCategoria");
-    const miniRuta = $("miniRuta");
-    const detailLabel = $("detailLabel");
-
-    function showInfo(text) {
-      infoMsg.style.display = "block";
-      infoMsg.textContent = text;
-    }
-
-    function hideInfo() {
-      infoMsg.style.display = "none";
-      infoMsg.textContent = "";
-    }
-
-    function showError(text) {
-      errorMsg.style.display = "block";
-      errorMsg.textContent = text;
-    }
-
-    function hideError() {
-      errorMsg.style.display = "none";
-      errorMsg.textContent = "";
-    }
-
-    function normalize(v) {
-      return String(v ?? "").trim();
-    }
-
-    function slug(v) {
-      return normalize(v).toLowerCase();
-    }
-
-    function nombreCat(cat) {
-      if (cat === "COLAS") return "Colas";
-      if (cat === "SABORES") return "Sabores";
-      if (cat === "STILLS") return "Stills";
-      if (cat === "MULTICATEGORIAS") return "Multicategorías";
-      return "Todos";
-    }
-
-    function escapeHtml(str) {
-      return String(str ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
-    function buildTabs() {
-      tabs.innerHTML = CATS.map(cat => `
-        <button class="tab ${state.categoriaActual === cat ? "active" : ""}" data-cat="${cat}">
-          ${nombreCat(cat)}
-        </button>
-      `).join("");
-
-      tabs.querySelectorAll(".tab").forEach(btn => {
-        btn.addEventListener("click", () => {
-          state.categoriaActual = btn.dataset.cat;
-          buildTabs();
-          render();
-        });
-      });
-    }
-
-    async function cargarCSV(url) {
-      const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error(`No se pudo cargar ${url}`);
-
-      const text = await res.text();
-
-      if (!text || text.includes("<!DOCTYPE html") || text.includes("<html")) {
-        throw new Error("Google devolvió HTML en lugar de CSV.");
-      }
-
-      return Papa.parse(text, {
-        header: true,
-        skipEmptyLines: true
-      }).data;
-    }
-
-    async function cargarDatosDesdeDrive() {
-      try {
-        hideError();
-        showInfo("Cargando datos desde Drive...");
-
-        const [
-          clientesRaw,
-          comprasRaw,
-          colasRaw,
-          saboresRaw,
-          stillsRaw,
-          multiRaw
-        ] = await Promise.all([
-          cargarCSV(URLS.clientes),
-          cargarCSV(URLS.compras),
-          cargarCSV(URLS.colas),
-          cargarCSV(URLS.sabores),
-          cargarCSV(URLS.stills),
-          cargarCSV(URLS.multicategorias)
-        ]);
-
-        state.clientes = clientesRaw.map(x => ({
-          numero: normalize(x.Numero || x.NUMERO || x.numero),
-          cliente: normalize(x.Cliente || x.CLIENTE || x.cliente),
-          ruta: normalize(x.Ruta || x.RUTA || x.ruta),
-          vendedor: normalize(x.Vendedor || x.VENDEDOR || x.vendedor)
-        })).filter(x => x.numero && x.cliente);
-
-        state.compras = comprasRaw.map(x => ({
-          numero: normalize(x.Numero || x.NUMERO || x.numero),
-          producto: normalize(x.Producto || x.PRODUCTO || x.producto)
-        })).filter(x => x.numero && x.producto);
-
-        state.categorias.COLAS = colasRaw.map(x => normalize(x.Producto || x.PRODUCTO || x.producto)).filter(Boolean);
-        state.categorias.SABORES = saboresRaw.map(x => normalize(x.Producto || x.PRODUCTO || x.producto)).filter(Boolean);
-        state.categorias.STILLS = stillsRaw.map(x => normalize(x.Producto || x.PRODUCTO || x.producto)).filter(Boolean);
-        state.categorias.MULTICATEGORIAS = multiRaw.map(x => normalize(x.Producto || x.PRODUCTO || x.producto)).filter(Boolean);
-
-        state.clienteActual = "";
-        state.categoriaActual = "TODOS";
-        state.rutaActual = "";
-        searchClient.value = "";
-        clientSelect.value = "";
-        routeSelect.value = "";
-
-        buildRouteSelect();
-        buildClientSelect();
-        buildTabs();
-        render();
-
-        showInfo(`Datos cargados correctamente. Clientes: ${state.clientes.length}`);
-      } catch (error) {
-        console.error(error);
-        showError("No se pudieron cargar los datos desde Google Sheets.");
-        productos.innerHTML = `<div class="muted">No se pudieron cargar los datos.</div>`;
-      }
-    }
-
-    function getRutasDisponibles() {
-      const rutas = [...new Set(
-        state.clientes
-          .map(c => normalize(c.ruta))
-          .filter(Boolean)
-      )];
-
-      return rutas.sort((a, b) => {
-        const na = Number(a);
-        const nb = Number(b);
-        if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
-        return a.localeCompare(b, "es");
-      });
-    }
-
-    function buildRouteSelect() {
-      const rutas = getRutasDisponibles();
-
-      routeSelect.innerHTML =
-        `<option value="">Todas las rutas</option>` +
-        rutas.map(r => `<option value="${escapeHtml(r)}">Ruta ${escapeHtml(r)}</option>`).join("");
-
-      routeSelect.value = state.rutaActual;
-    }
-
-    function clientesFiltradosBase() {
-      return state.clientes.filter(c => {
-        if (state.rutaActual && c.ruta !== state.rutaActual) return false;
-        return true;
-      });
-    }
-
-    function buildClientSelect() {
-      const term = slug(searchClient.value);
-
-      const filtrados = clientesFiltradosBase().filter(c => {
-        if (!term) return true;
-        return slug(c.numero).includes(term) || slug(c.cliente).includes(term);
-      });
-
-      clientSelect.innerHTML = `<option value="">Seleccionar cliente</option>` +
-        filtrados
-          .sort((a, b) => {
-            const rutaA = Number(a.ruta) || 9999;
-            const rutaB = Number(b.ruta) || 9999;
-            if (rutaA !== rutaB) return rutaA - rutaB;
-            return a.cliente.localeCompare(b.cliente, "es");
-          })
-          .map(c => `<option value="${escapeHtml(c.numero)}">${escapeHtml(c.numero)} - Ruta ${escapeHtml(c.ruta || "-")} - ${escapeHtml(c.cliente)}</option>`)
-          .join("");
-
-      if (state.clienteActual && filtrados.some(c => c.numero === state.clienteActual)) {
-        clientSelect.value = state.clienteActual;
-      } else {
-        state.clienteActual = "";
-        clientSelect.value = "";
-      }
-    }
-
-    function unique(list) {
-      const seen = new Set();
-      return list.filter(p => {
-        const key = slug(p);
-        if (!key || seen.has(key)) return false;
-        seen.add(key);
-        return !key.includes("faltante 197");
-      });
-    }
-
-    function catalogoActual() {
-      if (state.categoriaActual === "TODOS") {
-        return unique([
-          ...state.categorias.COLAS,
-          ...state.categorias.SABORES,
-          ...state.categorias.STILLS,
-          ...state.categorias.MULTICATEGORIAS
-        ]);
-      }
-      return unique(state.categorias[state.categoriaActual] || []);
-    }
-
-    function categoriaDeProducto(prod) {
-      if (state.categorias.COLAS.includes(prod)) return "Colas";
-      if (state.categorias.SABORES.includes(prod)) return "Sabores";
-      if (state.categorias.STILLS.includes(prod)) return "Stills";
-      if (state.categorias.MULTICATEGORIAS.includes(prod)) return "Multicategorías";
-      return "";
-    }
-
-    function getComprados(numero) {
-      return new Set(
-        state.compras
-          .filter(x => x.numero === numero)
-          .map(x => normalize(x.producto))
-      );
-    }
-
-    function getCategoriaStats(cat, compradosSet) {
-      const lista = unique(state.categorias[cat] || []);
-      const objetivo = OBJETIVOS[cat] || lista.length;
-      const avanceReal = lista.filter(p => compradosSet.has(p)).length;
-      const avanceTope = Math.min(avanceReal, objetivo);
-      const porcentaje = objetivo ? Math.round((avanceTope / objetivo) * 100) : 0;
-      const cumplio = avanceReal >= objetivo;
-      const puntos = cumplio ? PUNTOS_POR_CATEGORIA : 0;
-
-      let pillClass = "no";
-      if (porcentaje >= 100) pillClass = "ok";
-      else if (porcentaje >= 80) pillClass = "mid";
-      else pillClass = "no";
-
-      return {
-        cat,
-        objetivo,
-        avanceReal,
-        avanceTope,
-        porcentaje,
-        cumplio,
-        puntos,
-        pillClass
+<div id="app"></div>
+
+<script>
+
+// 🔗 TU CSV
+const URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSQSuRpKllI3EgCIHu51oqxUVEVtsDYgt5LFX0iNFndhHeRfsKIy3RyGoLnfobWFw/pub?gid=1665268501&single=true&output=csv";
+
+fetch(URL)
+  .then(res => res.text())
+  .then(data => {
+    const filas = data.split("\n").slice(1);
+    const app = document.getElementById("app");
+
+    filas.forEach(f => {
+      const c = f.split(",");
+
+      const cliente = {
+        nombre: c[1],
+        ruta: c[0],
+        categorias: [
+          { nombre: "Colas", porcentaje: Number(c[2]), cumplidas: Number(c[3]), total: 15, puntos: 0 },
+          { nombre: "Sabores", porcentaje: Number(c[4]), cumplidas: Number(c[5]), total: 12, puntos: 5 },
+          { nombre: "Stills", porcentaje: Number(c[6]), cumplidas: Number(c[7]), total: 20, puntos: 0 }
+        ]
       };
-    }
 
-    function generarReporteWhatsapp(cliente, compradosSet) {
-      const stats = ["COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"].map(cat =>
-        getCategoriaStats(cat, compradosSet)
-      );
+      const card = document.createElement("div");
+      card.className = "card";
 
-      const puntosTotal = stats.reduce((acc, item) => acc + item.puntos, 0);
-
-      let mensaje = `📊 *REPORTE COMPLETO DE REFERENCIAS*\\n\\n`;
-      mensaje += `🏪 *Cliente:* ${cliente.cliente}\\n`;
-      mensaje += `🔢 *Número:* ${cliente.numero}\\n`;
-      mensaje += `📍 *Ruta:* ${cliente.ruta || "-"}\\n`;
-      mensaje += `👤 *Vendedor:* ${cliente.vendedor || "-"}\\n\\n`;
-
-      stats.forEach(item => {
-        const pendientes = unique(state.categorias[item.cat] || []).filter(p => !compradosSet.has(p));
-
-        mensaje += `*${nombreCat(item.cat).toUpperCase()}*\\n`;
-        mensaje += `✅ Avance: ${item.avanceReal}/${item.objetivo}\\n`;
-        mensaje += `📈 Cumplimiento: ${item.porcentaje}%\\n`;
-        mensaje += `🏅 Puntos: ${item.puntos}/${PUNTOS_POR_CATEGORIA}\\n`;
-
-        if (pendientes.length) {
-          mensaje += `❌ Pendientes:\\n- ${pendientes.join("\\n- ")}\\n`;
-        } else {
-          mensaje += `✅ Sin pendientes\\n`;
-        }
-
-        mensaje += `\\n`;
-      });
-
-      mensaje += `🏆 *TOTAL:* ${puntosTotal}/${PUNTAJE_TOTAL} puntos`;
-
-      return mensaje;
-    }
-
-    function enviarWhatsappActual() {
-      if (!state.clienteActual) {
-        showError("Primero seleccioná un cliente.");
-        return;
-      }
-
-      const cliente = state.clientes.find(x => x.numero === state.clienteActual);
-      if (!cliente) {
-        showError("No se encontró el cliente seleccionado.");
-        return;
-      }
-
-      hideError();
-      const compradosSet = getComprados(state.clienteActual);
-      const mensaje = generarReporteWhatsapp(cliente, compradosSet);
-      const url = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
-      window.open(url, "_blank");
-    }
-
-    function renderResumen(compradosSet) {
-      if (!state.clienteActual) {
-        resumen.style.display = "none";
-        resumen.innerHTML = "";
-        return;
-      }
-
-      const items = ["COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"].map(cat =>
-        getCategoriaStats(cat, compradosSet)
-      );
-
-      resumen.style.display = "flex";
-      resumen.innerHTML = items.map(item => `
-        <div class="resumen-item">
-          <div class="resumen-top">
-            <div class="resumen-label">${nombreCat(item.cat)}</div>
-            <div class="resumen-pill ${item.pillClass}">${item.porcentaje}%</div>
-          </div>
-          <div class="resumen-meta">${item.avanceReal} de ${item.objetivo} referencias</div>
-          <div class="progress-bar">
-            <div class="progress-fill ${item.pillClass}" style="width:${item.porcentaje}%"></div>
-          </div>
-          <div class="puntos-pill ${item.cumplio ? "ok" : ""}">
-            ${item.puntos} puntos
-          </div>
+      card.innerHTML = `
+        <div class="titulo">${cliente.nombre}
+          <span class="ruta">Ruta ${cliente.ruta}</span>
         </div>
-      `).join("");
-    }
+        <div class="sub">Categoría visible: Todas</div>
 
-    function actualizarScore(cliente, compradosSet) {
-      if (!cliente) {
-        scoreCard.style.display = "none";
-        miniRuta.textContent = state.rutaActual || "-";
-        miniCategoria.textContent = nombreCat(state.categoriaActual);
-        return;
-      }
+        <button class="btn-whatsapp" onclick='enviarWhatsApp(${JSON.stringify(cliente)})'>
+          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg">
+          Enviar avance por WhatsApp
+        </button>
 
-      const stats = ["COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"].map(cat =>
-        getCategoriaStats(cat, compradosSet)
-      );
+        <div class="resumen">
+          ${cliente.categorias.map(cat => {
+            let color = "rojo";
+            if (cat.porcentaje >= 100) color = "verde";
+            else if (cat.porcentaje >= 80) color = "amarillo";
 
-      const puntosTotal = stats.reduce((acc, item) => acc + item.puntos, 0);
-
-      scoreCard.style.display = "flex";
-      scoreValor.textContent = puntosTotal;
-      miniRuta.textContent = cliente.ruta || "-";
-      miniCategoria.textContent = nombreCat(state.categoriaActual);
-      scoreEstado.textContent = `${puntosTotal} de ${PUNTAJE_TOTAL} puntos`;
-
-      if (puntosTotal >= 20) {
-        scoreValor.style.color = "#16823a";
-        scoreEstado.style.background = "#edf9f0";
-        scoreEstado.style.color = "#16823a";
-      } else if (puntosTotal >= 10) {
-        scoreValor.style.color = "#d88a00";
-        scoreEstado.style.background = "#fff6e7";
-        scoreEstado.style.color = "#d88a00";
-      } else {
-        scoreValor.style.color = "#d6001c";
-        scoreEstado.style.background = "#fff1f3";
-        scoreEstado.style.color = "#d6001c";
-      }
-    }
-
-    function render() {
-      state.clienteActual = clientSelect.value;
-      detailLabel.textContent = nombreCat(state.categoriaActual);
-
-      if (!state.clientes.length) {
-        clienteInfo.style.display = "none";
-        btnWhatsappReporte.style.display = "none";
-        floatingWhatsappBtn.style.display = "none";
-        resumen.style.display = "none";
-        scoreCard.style.display = "none";
-        productos.innerHTML = `<div class="muted">No hay datos cargados.</div>`;
-        updateBadges([]);
-        return;
-      }
-
-      if (!state.clienteActual) {
-        clienteInfo.style.display = "none";
-        btnWhatsappReporte.style.display = "none";
-        floatingWhatsappBtn.style.display = "none";
-        resumen.style.display = "none";
-        scoreCard.style.display = "none";
-        miniRuta.textContent = state.rutaActual || "-";
-        miniCategoria.textContent = nombreCat(state.categoriaActual);
-
-        if (state.rutaActual) {
-          productos.innerHTML = `<div class="muted">Seleccioná un cliente de la ruta ${escapeHtml(state.rutaActual)} para ver el detalle.</div>`;
-        } else {
-          productos.innerHTML = `<div class="muted">Seleccioná una ruta o un cliente para ver el detalle.</div>`;
-        }
-
-        updateBadges([]);
-        return;
-      }
-
-      const cliente = state.clientes.find(x => x.numero === state.clienteActual);
-      const compradosSet = getComprados(state.clienteActual);
-
-      let lista = catalogoActual().map(prod => ({
-        producto: prod,
-        comprado: compradosSet.has(prod),
-        categoria: categoriaDeProducto(prod)
-      }));
-
-      lista.sort((a, b) => {
-        if (a.comprado !== b.comprado) return a.comprado ? -1 : 1;
-        return a.producto.localeCompare(b.producto, "es");
-      });
-
-      if (cliente) {
-        clienteInfo.style.display = "block";
-        btnWhatsappReporte.style.display = "flex";
-        floatingWhatsappBtn.style.display = "flex";
-        clienteNombre.textContent = `${cliente.numero} - ${cliente.cliente}`;
-        clienteMeta.textContent = `Vendedor: ${cliente.vendedor || "-"} · Categoría visible: ${nombreCat(state.categoriaActual)}`;
-        routePill.textContent = `Ruta ${cliente.ruta || "-"}`;
-      }
-
-      actualizarScore(cliente, compradosSet);
-      renderResumen(compradosSet);
-
-      if (!lista.length) {
-        productos.innerHTML = `<div class="muted">No hay productos para mostrar.</div>`;
-        updateBadges([]);
-        return;
-      }
-
-      productos.innerHTML = lista.map(item => `
-        <div class="item ${item.comprado ? "item-ok" : "item-no"}">
-          <div class="item-main">
-            <div class="item-icon">${item.comprado ? "✓" : "!"}</div>
-            <div>
-              <div class="item-name">${escapeHtml(item.producto)}</div>
-              <div class="item-cat">${escapeHtml(item.categoria)}</div>
-            </div>
-          </div>
-          <div class="state ${item.comprado ? "state-ok" : "state-no"}">
-            ${item.comprado ? "Compró" : "Pendiente"}
-          </div>
+            return `
+              <div class="box">
+                <b>${cat.nombre}</b><br>
+                <span class="${color}">${cat.porcentaje}%</span><br>
+                ${cat.cumplidas} de ${cat.total}
+              </div>
+            `;
+          }).join("")}
         </div>
-      `).join("");
+      `;
 
-      updateBadges(lista);
-    }
-
-    function updateBadges(lista) {
-      const total = lista.length;
-      const comprados = lista.filter(x => x.comprado).length;
-      const pendientes = total - comprados;
-
-      badgeTotal.textContent = `Total: ${total}`;
-      badgeBought.textContent = `Comprados: ${comprados}`;
-      badgeMissing.textContent = `Pendientes: ${pendientes}`;
-    }
-
-    routeSelect.addEventListener("change", () => {
-      state.rutaActual = routeSelect.value;
-      state.clienteActual = "";
-      buildClientSelect();
-      render();
+      app.appendChild(card);
     });
+  });
 
-    searchClient.addEventListener("input", () => {
-      buildClientSelect();
-      render();
-    });
 
-    clientSelect.addEventListener("change", render);
+// 🚀 WHATSAPP PRO
+function enviarWhatsApp(cliente) {
+  let mensaje = `📊 *Avance de Referencias*\n`;
+  mensaje += `Cliente: ${cliente.nombre}\n`;
+  mensaje += `Ruta: ${cliente.ruta}\n\n`;
 
-    btnReload.addEventListener("click", cargarDatosDesdeDrive);
+  cliente.categorias.forEach(cat => {
 
-    btnClear.addEventListener("click", () => {
-      searchClient.value = "";
-      state.clienteActual = "";
-      state.categoriaActual = "TODOS";
-      state.rutaActual = "";
-      routeSelect.value = "";
-      buildRouteSelect();
-      buildClientSelect();
-      buildTabs();
-      render();
-      hideError();
-      hideInfo();
-    });
+    let icono = '🔴';
+    if (cat.porcentaje >= 100) icono = '🟢';
+    else if (cat.porcentaje >= 80) icono = '🟡';
 
-    btnWhatsappReporte.addEventListener("click", enviarWhatsappActual);
-    floatingWhatsappBtn.addEventListener("click", enviarWhatsappActual);
+    mensaje += `${icono} *${cat.nombre}*\n`;
+    mensaje += `Avance: ${cat.porcentaje}%\n`;
+    mensaje += `Referencias: ${cat.cumplidas} de ${cat.total}\n`;
+    mensaje += `Puntos: ${cat.puntos}\n\n`;
+  });
 
-    buildTabs();
-    window.addEventListener("DOMContentLoaded", cargarDatosDesdeDrive);
-  </script>
+  mensaje += `📈 Gracias por acompañar el desarrollo de la categoría.`;
+
+  const url = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+  window.open(url, '_blank');
+}
+
+</script>
+
 </body>
 </html>
