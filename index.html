@@ -692,13 +692,14 @@
         min-width:88px;
       }
     }
+
     .logo-img{
-  display:block;
-  margin:0 auto 10px;
-  height:80px;
-  object-fit:contain;
-  filter: brightness(0) invert(1) drop-shadow(0 4px 12px rgba(0,0,0,.4));
-}
+      display:block;
+      margin:0 auto 10px;
+      height:80px;
+      object-fit:contain;
+      filter: brightness(0) invert(1) drop-shadow(0 4px 12px rgba(0,0,0,.4));
+    }
   </style>
 </head>
 <body>
@@ -1109,30 +1110,31 @@
     }
 
     function getCategoriaStats(cat, compradosSet) {
-  const lista = unique(state.categorias[cat] || []);
-  const objetivo = OBJETIVOS[cat] || lista.length;
-  const avanceReal = lista.filter(p => compradosSet.has(p)).length;
-  const avanceTope = Math.min(avanceReal, objetivo);
-  const porcentaje = objetivo ? Math.round((avanceTope / objetivo) * 100) : 0;
-  const cumplio = avanceReal >= objetivo;
-  const puntos = cumplio ? PUNTOS_POR_CATEGORIA : 0;
+      const lista = unique(state.categorias[cat] || []);
+      const objetivo = OBJETIVOS[cat] || lista.length;
+      const avanceReal = lista.filter(p => compradosSet.has(p)).length;
+      const avanceTope = Math.min(avanceReal, objetivo);
+      const porcentaje = objetivo ? Math.round((avanceTope / objetivo) * 100) : 0;
+      const cumplio = avanceReal >= objetivo;
+      const puntos = cumplio ? PUNTOS_POR_CATEGORIA : 0;
 
-  let pillClass = "no";
-  if (porcentaje >= 100) pillClass = "ok";
-  else if (porcentaje >= 80) pillClass = "mid";
-  else pillClass = "no";
+      let pillClass = "no";
+      if (porcentaje >= 100) pillClass = "ok";
+      else if (porcentaje >= 80) pillClass = "mid";
+      else pillClass = "no";
 
-  return {
-    cat,
-    objetivo,
-    avanceReal,
-    avanceTope,
-    porcentaje,
-    cumplio,
-    puntos,
-    pillClass
-  };
-}
+      return {
+        cat,
+        objetivo,
+        avanceReal,
+        avanceTope,
+        porcentaje,
+        cumplio,
+        puntos,
+        pillClass
+      };
+    }
+
     function generarReporteWhatsapp(cliente, compradosSet) {
       const stats = ["COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"].map(cat =>
         getCategoriaStats(cat, compradosSet)
@@ -1140,42 +1142,27 @@
 
       const puntosTotal = stats.reduce((acc, item) => acc + item.puntos, 0);
 
-      let mensaje = `📊 *REPORTE COMPLETO DE REFERENCIAS*
-
-`;
-      mensaje += `🏪 *Cliente:* ${cliente.cliente}
-`;
-      mensaje += `🔢 *Número:* ${cliente.numero}
-`;
-      mensaje += `📍 *Ruta:* ${cliente.ruta || "-"}
-`;
-      mensaje += `👤 *Vendedor:* ${cliente.vendedor || "-"}
-
-`;
+      let mensaje = `📊 *REPORTE COMPLETO DE REFERENCIAS*\n\n`;
+      mensaje += `🏪 *Cliente:* ${cliente.cliente}\n`;
+      mensaje += `🔢 *Número:* ${cliente.numero}\n`;
+      mensaje += `📍 *Ruta:* ${cliente.ruta || "-"}\n`;
+      mensaje += `👤 *Vendedor:* ${cliente.vendedor || "-"}\n\n`;
 
       stats.forEach(item => {
         const pendientes = unique(state.categorias[item.cat] || []).filter(p => !compradosSet.has(p));
-        mensaje += `*${nombreCat(item.cat).toUpperCase()}*
-`;
-        mensaje += `✅ Avance: ${item.avanceReal}/${item.objetivo}
-`;
-        mensaje += `📈 Cumplimiento: ${item.porcentaje}%
-`;
-        mensaje += `🏅 Puntos: ${item.puntos}/${PUNTOS_POR_CATEGORIA}
-`;
+
+        mensaje += `*${nombreCat(item.cat).toUpperCase()}*\n`;
+        mensaje += `✅ Avance: ${item.avanceReal}/${item.objetivo}\n`;
+        mensaje += `📈 Cumplimiento: ${item.porcentaje}%\n`;
+        mensaje += `🏅 Puntos: ${item.puntos}/${PUNTOS_POR_CATEGORIA}\n`;
 
         if (pendientes.length) {
-          mensaje += `❌ Pendientes:
-- ${pendientes.join("
-- ")}
-`;
+          mensaje += `❌ Pendientes:\n- ${pendientes.join("\n- ")}\n`;
         } else {
-          mensaje += `✅ Sin pendientes
-`;
+          mensaje += `✅ Sin pendientes\n`;
         }
 
-        mensaje += `
-`;
+        mensaje += `\n`;
       });
 
       mensaje += `🏆 *TOTAL:* ${puntosTotal}/${PUNTAJE_TOTAL} puntos`;
