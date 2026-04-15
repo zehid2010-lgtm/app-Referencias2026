@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cobertura por Cliente</title>
+  <title>Referencias por Cliente</title>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
     :root{
@@ -23,6 +23,10 @@
       --radius-xl:24px;
       --radius-lg:18px;
       --radius-md:14px;
+
+      --wa1:#25D366;
+      --wa2:#128C7E;
+      --wa3:#0f6d62;
     }
 
     *{box-sizing:border-box}
@@ -44,7 +48,7 @@
       max-width:620px;
       margin:0 auto;
       min-height:100vh;
-      padding-bottom:20px;
+      padding-bottom:110px;
     }
 
     .header{
@@ -82,17 +86,6 @@
       background:radial-gradient(circle, rgba(255,255,255,.12) 0%, transparent 65%);
       border-radius:50%;
       pointer-events:none;
-    }
-
-    .logo-text{
-      position:relative;
-      z-index:1;
-      font-family:'Brush Script MT','Segoe Script',cursive;
-      font-size:52px;
-      line-height:1;
-      text-align:center;
-      text-shadow:0 2px 10px rgba(0,0,0,.18);
-      margin-bottom:10px;
     }
 
     .header h1{
@@ -180,7 +173,7 @@
       padding:13px 14px;
       font-weight:800;
       cursor:pointer;
-      transition:transform .12s ease, box-shadow .18s ease, opacity .18s ease;
+      transition:transform .12s ease, box-shadow .18s ease, opacity .18s ease, filter .18s ease;
     }
 
     button:active{transform:scale(.99)}
@@ -203,25 +196,49 @@
       justify-content:center;
       gap:10px;
       color:#fff;
-      background:linear-gradient(135deg, #25D366, #128C7E);
-      box-shadow:0 8px 18px rgba(37,211,102,.22);
+      background:linear-gradient(135deg, var(--wa1), var(--wa2));
+      box-shadow:0 10px 24px rgba(37,211,102,.28);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .btn-whatsapp::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,0));
+      pointer-events:none;
     }
 
     .btn-whatsapp:hover{
       filter:brightness(1.03);
+      box-shadow:0 14px 28px rgba(37,211,102,.33);
     }
 
     .wa-icon{
-      width:28px;
-      height:28px;
+      width:30px;
+      height:30px;
       border-radius:50%;
       background:rgba(255,255,255,.18);
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size:15px;
-      font-weight:900;
-      flex:0 0 28px;
+      flex:0 0 30px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.28);
+      position:relative;
+      z-index:1;
+    }
+
+    .wa-icon img{
+      width:17px;
+      height:17px;
+      object-fit:contain;
+      display:block;
+    }
+
+    .wa-text{
+      position:relative;
+      z-index:1;
     }
 
     .actions{
@@ -681,6 +698,33 @@
       letter-spacing:.2px;
     }
 
+    .floating-wa{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      width:60px;
+      height:60px;
+      border:none;
+      border-radius:50%;
+      background:linear-gradient(135deg, var(--wa1), var(--wa2));
+      box-shadow:0 16px 30px rgba(37,211,102,.35);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:999;
+    }
+
+    .floating-wa img{
+      width:28px;
+      height:28px;
+      object-fit:contain;
+    }
+
+    .floating-wa:hover{
+      transform:translateY(-2px);
+      filter:brightness(1.03);
+    }
+
     @media (max-width:560px){
       .hero-grid{
         grid-template-columns:1fr;
@@ -717,6 +761,13 @@
 
       .state{
         min-width:88px;
+      }
+
+      .floating-wa{
+        width:58px;
+        height:58px;
+        right:14px;
+        bottom:14px;
       }
     }
 
@@ -804,8 +855,10 @@
             <p id="clienteMeta"></p>
             <div style="margin-top:12px;">
               <button id="btnWhatsappReporte" class="btn-whatsapp" style="display:none;">
-                <span class="wa-icon">✆</span>
-                <span>Enviar reporte completo por WhatsApp</span>
+                <span class="wa-icon">
+                  <img src="whatsapp.png" alt="WhatsApp">
+                </span>
+                <span class="wa-text">Enviar reporte completo por WhatsApp</span>
               </button>
             </div>
           </div>
@@ -835,6 +888,10 @@
       </div>
     </div>
   </div>
+
+  <button id="floatingWhatsappBtn" class="floating-wa" title="Enviar por WhatsApp" style="display:none;">
+    <img src="whatsapp.png" alt="WhatsApp">
+  </button>
 
   <script>
     const SHEET_ID = "1SQAHZLQmBjkGeac7sEg9ChFQdwOVClcT";
@@ -897,6 +954,7 @@
     const clienteMeta = $("clienteMeta");
     const routePill = $("routePill");
     const btnWhatsappReporte = $("btnWhatsappReporte");
+    const floatingWhatsappBtn = $("floatingWhatsappBtn");
 
     const scoreCard = $("scoreCard");
     const scoreValor = $("scoreValor");
@@ -1170,32 +1228,51 @@
 
       const puntosTotal = stats.reduce((acc, item) => acc + item.puntos, 0);
 
-      let mensaje = `📊 *REPORTE COMPLETO DE REFERENCIAS*\n\n`;
-      mensaje += `🏪 *Cliente:* ${cliente.cliente}\n`;
-      mensaje += `🔢 *Número:* ${cliente.numero}\n`;
-      mensaje += `📍 *Ruta:* ${cliente.ruta || "-"}\n`;
-      mensaje += `👤 *Vendedor:* ${cliente.vendedor || "-"}\n\n`;
+      let mensaje = `📊 *REPORTE COMPLETO DE REFERENCIAS*\\n\\n`;
+      mensaje += `🏪 *Cliente:* ${cliente.cliente}\\n`;
+      mensaje += `🔢 *Número:* ${cliente.numero}\\n`;
+      mensaje += `📍 *Ruta:* ${cliente.ruta || "-"}\\n`;
+      mensaje += `👤 *Vendedor:* ${cliente.vendedor || "-"}\\n\\n`;
 
       stats.forEach(item => {
         const pendientes = unique(state.categorias[item.cat] || []).filter(p => !compradosSet.has(p));
 
-        mensaje += `*${nombreCat(item.cat).toUpperCase()}*\n`;
-        mensaje += `✅ Avance: ${item.avanceReal}/${item.objetivo}\n`;
-        mensaje += `📈 Cumplimiento: ${item.porcentaje}%\n`;
-        mensaje += `🏅 Puntos: ${item.puntos}/${PUNTOS_POR_CATEGORIA}\n`;
+        mensaje += `*${nombreCat(item.cat).toUpperCase()}*\\n`;
+        mensaje += `✅ Avance: ${item.avanceReal}/${item.objetivo}\\n`;
+        mensaje += `📈 Cumplimiento: ${item.porcentaje}%\\n`;
+        mensaje += `🏅 Puntos: ${item.puntos}/${PUNTOS_POR_CATEGORIA}\\n`;
 
         if (pendientes.length) {
-          mensaje += `❌ Pendientes:\n- ${pendientes.join("\n- ")}\n`;
+          mensaje += `❌ Pendientes:\\n- ${pendientes.join("\\n- ")}\\n`;
         } else {
-          mensaje += `✅ Sin pendientes\n`;
+          mensaje += `✅ Sin pendientes\\n`;
         }
 
-        mensaje += `\n`;
+        mensaje += `\\n`;
       });
 
       mensaje += `🏆 *TOTAL:* ${puntosTotal}/${PUNTAJE_TOTAL} puntos`;
 
       return mensaje;
+    }
+
+    function enviarWhatsappActual() {
+      if (!state.clienteActual) {
+        showError("Primero seleccioná un cliente.");
+        return;
+      }
+
+      const cliente = state.clientes.find(x => x.numero === state.clienteActual);
+      if (!cliente) {
+        showError("No se encontró el cliente seleccionado.");
+        return;
+      }
+
+      hideError();
+      const compradosSet = getComprados(state.clienteActual);
+      const mensaje = generarReporteWhatsapp(cliente, compradosSet);
+      const url = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+      window.open(url, "_blank");
     }
 
     function renderResumen(compradosSet) {
@@ -1268,7 +1345,8 @@
 
       if (!state.clientes.length) {
         clienteInfo.style.display = "none";
-        if (btnWhatsappReporte) btnWhatsappReporte.style.display = "none";
+        btnWhatsappReporte.style.display = "none";
+        floatingWhatsappBtn.style.display = "none";
         resumen.style.display = "none";
         scoreCard.style.display = "none";
         productos.innerHTML = `<div class="muted">No hay datos cargados.</div>`;
@@ -1278,7 +1356,8 @@
 
       if (!state.clienteActual) {
         clienteInfo.style.display = "none";
-        if (btnWhatsappReporte) btnWhatsappReporte.style.display = "none";
+        btnWhatsappReporte.style.display = "none";
+        floatingWhatsappBtn.style.display = "none";
         resumen.style.display = "none";
         scoreCard.style.display = "none";
         miniRuta.textContent = state.rutaActual || "-";
@@ -1310,7 +1389,8 @@
 
       if (cliente) {
         clienteInfo.style.display = "block";
-        if (btnWhatsappReporte) btnWhatsappReporte.style.display = "flex";
+        btnWhatsappReporte.style.display = "flex";
+        floatingWhatsappBtn.style.display = "flex";
         clienteNombre.textContent = `${cliente.numero} - ${cliente.cliente}`;
         clienteMeta.textContent = `Vendedor: ${cliente.vendedor || "-"} · Categoría visible: ${nombreCat(state.categoriaActual)}`;
         routePill.textContent = `Ruta ${cliente.ruta || "-"}`;
@@ -1383,24 +1463,8 @@
       hideInfo();
     });
 
-    btnWhatsappReporte.addEventListener("click", () => {
-      if (!state.clienteActual) {
-        showError("Primero seleccioná un cliente.");
-        return;
-      }
-
-      const cliente = state.clientes.find(x => x.numero === state.clienteActual);
-      if (!cliente) {
-        showError("No se encontró el cliente seleccionado.");
-        return;
-      }
-
-      hideError();
-      const compradosSet = getComprados(state.clienteActual);
-      const mensaje = generarReporteWhatsapp(cliente, compradosSet);
-      const url = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
-      window.open(url, "_blank");
-    });
+    btnWhatsappReporte.addEventListener("click", enviarWhatsappActual);
+    floatingWhatsappBtn.addEventListener("click", enviarWhatsappActual);
 
     buildTabs();
     window.addEventListener("DOMContentLoaded", cargarDatosDesdeDrive);
