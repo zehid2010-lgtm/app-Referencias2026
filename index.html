@@ -932,6 +932,19 @@
         .replace(/'/g, "&#039;");
     }
 
+    function normalizarTelefonoAR(telefono) {
+      let tel = String(telefono || "").replace(/\D/g, "");
+      if (!tel) return "";
+
+      if (tel.startsWith("549")) return tel;
+      if (tel.startsWith("54")) {
+        return tel.startsWith("549") ? tel : "549" + tel.slice(2);
+      }
+      if (tel.startsWith("9")) return "54" + tel;
+
+      return "549" + tel;
+    }
+
     function buildTabs() {
       tabs.innerHTML = CATS.map(cat => `
         <button class="tab ${state.categoriaActual === cat ? "active" : ""}" data-cat="${cat}">
@@ -989,7 +1002,8 @@
           numero: normalize(x.Numero || x.NUMERO || x.numero),
           cliente: normalize(x.Cliente || x.CLIENTE || x.cliente),
           ruta: normalize(x.Ruta || x.RUTA || x.ruta),
-          vendedor: normalize(x.Vendedor || x.VENDEDOR || x.vendedor)
+          vendedor: normalize(x.Vendedor || x.VENDEDOR || x.vendedor),
+          telefono: normalize(x.Telefono || x.TELEFONO || x.telefono)
         })).filter(x => x.numero && x.cliente);
 
         state.compras = comprasRaw.map(x => ({
@@ -1335,8 +1349,12 @@
 
       const compradosSet = getComprados(state.clienteActual);
       const texto = armarTextoWhatsappGeneral(cliente, compradosSet);
+      const telefono = normalizarTelefonoAR(cliente.telefono);
 
-      const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+      const url = telefono
+        ? `https://wa.me/${telefono}?text=${encodeURIComponent(texto)}`
+        : `https://wa.me/?text=${encodeURIComponent(texto)}`;
+
       window.open(url, "_blank");
     }
 
