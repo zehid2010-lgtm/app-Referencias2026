@@ -644,7 +644,10 @@
     .wa-main{
       color:#fff;
       background:linear-gradient(135deg, #25D366, #128C7E);
-      box-shadow:0 8px 18px rgba(18,140,126,.22);
+      box-shadow:0 10px 22px rgba(18,140,126,.24);
+      font-size:15px;
+      font-weight:900;
+      letter-spacing:.2px;
     }
 
     .footer-note{
@@ -783,7 +786,12 @@
       </div>
 
       <div class="whatsapp-actions" id="whatsappActions">
-        <button id="btnWhatsappGeneral" class="wa-main">Enviar avance de referencias por WhatsApp</button>
+        <button id="btnWhatsappGeneral" class="wa-main">
+          <span style="display:inline-flex;align-items:center;gap:8px;justify-content:center;">
+            <span style="font-size:18px;">🟢</span>
+            <span>Enviar avance de referencias por WhatsApp</span>
+          </span>
+        </button>
       </div>
 
       <div class="card">
@@ -1313,6 +1321,7 @@
         `📊 *Avance de Referencias*`,
         `Cliente: *${cliente.numero} - ${cliente.cliente}*`,
         `Ruta: *${cliente.ruta || "-"}*`,
+        `Vendedor: *${cliente.vendedor || "-"}*`,
         ``,
         detalle
       ].join("\n");
