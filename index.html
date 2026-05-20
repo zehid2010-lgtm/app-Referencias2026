@@ -815,72 +815,247 @@
     }
 
   
-/* ===== LOGIN PRIVADO POR VENDEDOR - VERSION CORREGIDA ===== */
+
+/* ===== LOGIN PRIVADO PREMIUM POR VENDEDOR ===== */
 .login-overlay{
   position:fixed;
   inset:0;
-  background:linear-gradient(180deg,#e30613 0%,#7a0007 100%);
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255,255,255,.16), transparent 24%),
+    radial-gradient(circle at 90% 12%, rgba(255,255,255,.12), transparent 28%),
+    linear-gradient(160deg,#ff1825 0%,#e30613 42%,#910008 100%);
   z-index:999999;
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:20px;
+  padding:22px;
+  overflow:hidden;
 }
+
+.login-overlay::before{
+  content:"";
+  position:absolute;
+  width:560px;
+  height:560px;
+  border-radius:50%;
+  border:80px solid rgba(255,255,255,.055);
+  right:-260px;
+  top:-210px;
+}
+
+.login-overlay::after{
+  content:"";
+  position:absolute;
+  width:420px;
+  height:420px;
+  border-radius:50%;
+  border:58px solid rgba(255,255,255,.045);
+  left:-210px;
+  bottom:-190px;
+}
+
+.login-bg-glow{
+  position:absolute;
+  border-radius:999px;
+  filter:blur(18px);
+  pointer-events:none;
+}
+
+.login-bg-glow-1{
+  width:160px;
+  height:160px;
+  background:rgba(255,255,255,.18);
+  top:12%;
+  left:9%;
+}
+
+.login-bg-glow-2{
+  width:220px;
+  height:220px;
+  background:rgba(255,255,255,.10);
+  right:8%;
+  bottom:13%;
+}
+
 .login-box{
   width:100%;
-  max-width:390px;
-  background:#fff;
-  border-radius:28px;
-  padding:34px 26px;
-  box-shadow:0 20px 50px rgba(0,0,0,.28);
+  max-width:410px;
+  position:relative;
+  z-index:2;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.94));
+  border:1px solid rgba(255,255,255,.65);
+  border-radius:34px;
+  padding:30px 24px 24px;
+  box-shadow:
+    0 28px 70px rgba(0,0,0,.32),
+    inset 0 1px 0 rgba(255,255,255,.9);
   text-align:center;
+  backdrop-filter:blur(8px);
 }
-.login-logo{
-  height:72px;
-  margin:0 auto 16px;
-  display:block;
-  object-fit:contain;
-}
-.login-title{
-  font-size:30px;
+
+.login-top-mark{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px 14px;
+  margin-bottom:16px;
+  border-radius:999px;
+  background:#fff1f3;
+  color:#b10018;
+  font-size:11px;
   font-weight:900;
-  margin-bottom:6px;
-  color:#111827;
+  letter-spacing:1px;
+  border:1px solid #ffd3da;
 }
+
+.login-logo-wrap{
+  width:104px;
+  height:104px;
+  margin:0 auto 16px;
+  border-radius:32px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(circle at top left, rgba(255,255,255,.9), rgba(255,255,255,.28)),
+    linear-gradient(135deg,#e30613,#9d0008);
+  box-shadow:
+    0 16px 34px rgba(227,6,19,.28),
+    inset 0 1px 0 rgba(255,255,255,.45);
+}
+
+.login-logo{
+  max-width:82px;
+  max-height:74px;
+  object-fit:contain;
+  filter:brightness(0) invert(1) drop-shadow(0 4px 9px rgba(0,0,0,.28));
+}
+
+.login-title{
+  font-size:34px;
+  line-height:1;
+  font-weight:950;
+  margin:0 0 8px;
+  color:#111827;
+  letter-spacing:-.6px;
+}
+
 .login-sub{
   font-size:13px;
   color:#6b7280;
   margin-bottom:24px;
-  font-weight:700;
+  font-weight:800;
 }
+
+.login-field{
+  position:relative;
+  margin-bottom:14px;
+}
+
+.login-field-icon{
+  position:absolute;
+  left:15px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:17px;
+  z-index:2;
+  opacity:.75;
+}
+
 .login-input{
   width:100%;
-  margin-bottom:14px;
-  padding:15px 16px;
-  border-radius:16px;
-  border:1px solid #ddd;
+  height:54px;
+  margin:0;
+  padding:0 15px 0 46px;
+  border-radius:18px;
+  border:1.5px solid #e5e7eb;
+  background:#fff;
   font-size:15px;
+  font-weight:700;
   box-sizing:border-box;
+  outline:none;
+  transition:.18s ease;
+  box-shadow:0 6px 16px rgba(17,24,39,.045);
 }
+
+.login-pass-input{
+  padding-right:56px;
+}
+
+.login-input:focus{
+  border-color:#e30613;
+  box-shadow:
+    0 0 0 4px rgba(227,6,19,.10),
+    0 10px 20px rgba(227,6,19,.08);
+}
+
+.eye-btn{
+  position:absolute;
+  right:8px;
+  top:50%;
+  transform:translateY(-50%);
+  width:42px;
+  height:42px;
+  border:none;
+  border-radius:14px;
+  background:#f3f4f6;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  transition:.15s ease;
+}
+
+.eye-btn:active{
+  transform:translateY(-50%) scale(.96);
+}
+
 .login-btn{
   width:100%;
   border:none;
-  border-radius:18px;
+  border-radius:19px;
   padding:16px;
-  background:linear-gradient(180deg,#ff1a24,#c4000c);
+  margin-top:4px;
+  background:linear-gradient(180deg,#ff1a24 0%,#e30613 55%,#b80009 100%);
   color:#fff;
   font-size:16px;
-  font-weight:900;
+  font-weight:950;
   cursor:pointer;
-  box-shadow:0 10px 22px rgba(227,6,19,.25);
+  box-shadow:0 14px 26px rgba(227,6,19,.28);
+  letter-spacing:.3px;
 }
+
+.reset-login-btn{
+  margin-top:11px;
+  background:#f3f4f6;
+  color:#111827;
+  box-shadow:none;
+  font-size:13px;
+  padding:13px;
+}
+
 .login-error{
-  margin-top:12px;
+  margin-top:13px;
   color:#dc2626;
   font-size:13px;
-  font-weight:800;
+  font-weight:900;
   display:none;
 }
+
+.login-foot{
+  margin-top:18px;
+  padding:12px 14px;
+  border-radius:16px;
+  background:#f9fafb;
+  border:1px solid #edf0f5;
+  color:#6b7280;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.35;
+}
+
 .session-actions{
   position:fixed;
   top:12px;
@@ -889,6 +1064,7 @@
   display:none;
   gap:8px;
 }
+
 .session-btn{
   width:auto;
   border:none;
@@ -901,7 +1077,9 @@
   cursor:pointer;
   box-shadow:0 8px 20px rgba(0,0,0,.18);
 }
+
 .session-btn.pass{background:#e30613}
+
 .password-modal{
   position:fixed;
   inset:0;
@@ -912,6 +1090,7 @@
   z-index:9999999;
   padding:20px;
 }
+
 .password-box{
   width:100%;
   max-width:390px;
@@ -920,11 +1099,13 @@
   padding:26px;
   box-shadow:0 20px 50px rgba(0,0,0,.28);
 }
+
 .password-box h2{
   margin:0 0 16px;
   font-size:22px;
   font-weight:900;
 }
+
 .password-box input{
   width:100%;
   box-sizing:border-box;
@@ -933,6 +1114,7 @@
   border-radius:14px;
   border:1px solid #ddd;
 }
+
 .password-box button{
   width:100%;
   padding:14px;
@@ -942,38 +1124,75 @@
   font-weight:900;
   cursor:pointer;
 }
+
 .password-save{
   background:linear-gradient(180deg,#ff1a24,#c4000c);
   color:#fff;
 }
+
 .password-cancel{
   background:#f3f4f6;
   color:#111827;
 }
-.reset-login-btn{
-  margin-top:10px;
-  background:#f3f4f6;
-  color:#111827;
-  box-shadow:none;
+
+@media (max-width:480px){
+  .login-box{
+    border-radius:30px;
+    padding:26px 20px 20px;
+  }
+  .login-title{
+    font-size:30px;
+  }
+  .login-logo-wrap{
+    width:94px;
+    height:94px;
+    border-radius:28px;
+  }
 }
+
+
+
 
   </style>
 </head>
 <body>
 
 <div id="loginOverlay" class="login-overlay">
-  <div class="login-box">
-    <img class="login-logo" src="logo.png" alt="Logo">
-    <div class="login-title">Acceso Privado</div>
-    <div class="login-sub">Referencias por Cliente</div>
+  <div class="login-bg-glow login-bg-glow-1"></div>
+  <div class="login-bg-glow login-bg-glow-2"></div>
 
-    <input id="userInput" class="login-input" type="text" placeholder="Usuario" autocomplete="username">
-    <input id="passInput" class="login-input" type="password" placeholder="Contraseña" autocomplete="current-password">
+  <div class="login-box">
+    <div class="login-top-mark">ACCESO INTERNO</div>
+
+    <div class="login-logo-wrap">
+      <img class="login-logo" src="logo.png" alt="Logo">
+    </div>
+
+    <div class="login-title">Bienvenido</div>
+    <div class="login-sub">Referencias por Cliente · Gestión Comercial</div>
+
+    <div class="login-field">
+      <span class="login-field-icon">👤</span>
+      <input id="userInput" class="login-input" type="text" placeholder="Usuario" autocomplete="username">
+    </div>
+
+    <div class="login-field">
+      <span class="login-field-icon">🔒</span>
+      <input id="passInput" class="login-input login-pass-input" type="password" placeholder="Contraseña" autocomplete="current-password">
+      <button class="eye-btn" type="button" onclick="togglePasswordVisibility()" aria-label="Mostrar contraseña">
+        <span id="eyeIcon">👁️</span>
+      </button>
+    </div>
 
     <button class="login-btn" type="button" onclick="loginApp()">INGRESAR</button>
+
     <button class="login-btn reset-login-btn" type="button" onclick="resetLoginData()">Restablecer claves</button>
 
     <div id="loginError" class="login-error">Usuario o contraseña incorrectos</div>
+
+    <div class="login-foot">
+      Cada vendedor ingresa únicamente a su ruta asignada.
+    </div>
   </div>
 </div>
 
@@ -1333,6 +1552,24 @@
         localStorage.removeItem(LOGIN_STORAGE_KEY);
       }
     }
+
+
+    function togglePasswordVisibility(){
+      const passInput = document.getElementById("passInput");
+      const eyeIcon = document.getElementById("eyeIcon");
+
+      if(!passInput) return;
+
+      if(passInput.type === "password"){
+        passInput.type = "text";
+        if(eyeIcon) eyeIcon.textContent = "🙈";
+      }else{
+        passInput.type = "password";
+        if(eyeIcon) eyeIcon.textContent = "👁️";
+      }
+    }
+
+    window.togglePasswordVisibility = togglePasswordVisibility;
 
     window.loginApp = loginApp;
     window.logoutApp = logoutApp;
