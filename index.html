@@ -814,9 +814,181 @@
       box-shadow:inset 0 0 0 3px rgba(255,255,255,.22);
     }
 
+  
+/* ===== LOGIN PRIVADO POR VENDEDOR ===== */
+.login-overlay{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(180deg,#e30613 0%,#7a0007 100%);
+  z-index:999999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.login-box{
+  width:100%;
+  max-width:390px;
+  background:#fff;
+  border-radius:28px;
+  padding:34px 26px;
+  box-shadow:0 20px 50px rgba(0,0,0,.28);
+  text-align:center;
+}
+.login-logo{
+  height:72px;
+  margin:0 auto 16px;
+  display:block;
+  object-fit:contain;
+}
+.login-title{
+  font-size:30px;
+  font-weight:900;
+  margin-bottom:6px;
+  color:#111827;
+}
+.login-sub{
+  font-size:13px;
+  color:#6b7280;
+  margin-bottom:24px;
+  font-weight:700;
+}
+.login-input{
+  width:100%;
+  margin-bottom:14px;
+  padding:15px 16px;
+  border-radius:16px;
+  border:1px solid #ddd;
+  font-size:15px;
+  box-sizing:border-box;
+}
+.login-btn{
+  width:100%;
+  border:none;
+  border-radius:18px;
+  padding:16px;
+  background:linear-gradient(180deg,#ff1a24,#c4000c);
+  color:#fff;
+  font-size:16px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 10px 22px rgba(227,6,19,.25);
+}
+.login-error{
+  margin-top:12px;
+  color:#dc2626;
+  font-size:13px;
+  font-weight:800;
+  display:none;
+}
+.session-actions{
+  position:fixed;
+  top:12px;
+  right:12px;
+  z-index:9999;
+  display:flex;
+  gap:8px;
+}
+.session-btn{
+  width:auto;
+  border:none;
+  border-radius:999px;
+  background:#111827;
+  color:#fff;
+  padding:10px 12px;
+  font-size:11px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,.18);
+}
+.session-btn.pass{
+  background:#e30613;
+}
+.password-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.62);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999999;
+  padding:20px;
+}
+.password-box{
+  width:100%;
+  max-width:390px;
+  background:#fff;
+  border-radius:24px;
+  padding:26px;
+  box-shadow:0 20px 50px rgba(0,0,0,.28);
+}
+.password-box h2{
+  margin:0 0 16px;
+  font-size:22px;
+  font-weight:900;
+}
+.password-box input{
+  width:100%;
+  box-sizing:border-box;
+  padding:14px;
+  margin-bottom:12px;
+  border-radius:14px;
+  border:1px solid #ddd;
+}
+.password-box button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  margin-top:8px;
+  font-weight:900;
+  cursor:pointer;
+}
+.password-save{
+  background:linear-gradient(180deg,#ff1a24,#c4000c);
+  color:#fff;
+}
+.password-cancel{
+  background:#f3f4f6;
+  color:#111827;
+}
+
   </style>
 </head>
 <body>
+
+<div id="loginOverlay" class="login-overlay">
+  <div class="login-box">
+    <img class="login-logo" src="logo.png" alt="Logo">
+    <div class="login-title">Acceso Privado</div>
+    <div class="login-sub">Referencias por Cliente</div>
+
+    <input id="userInput" class="login-input" type="text" placeholder="Usuario">
+    <input id="passInput" class="login-input" type="password" placeholder="Contraseña">
+
+    <button class="login-btn" onclick="loginApp()">INGRESAR</button>
+
+    <div id="loginError" class="login-error">Usuario o contraseña incorrectos</div>
+  </div>
+</div>
+
+<div id="sessionActions" class="session-actions" style="display:none;">
+  <button class="session-btn pass" onclick="openPasswordModal()">🔑 Clave</button>
+  <button class="session-btn" onclick="logoutApp()">Salir</button>
+</div>
+
+<div id="passwordModal" class="password-modal">
+  <div class="password-box">
+    <h2>Cambiar contraseña</h2>
+
+    <input id="currentPass" type="password" placeholder="Contraseña actual">
+    <input id="newPass" type="password" placeholder="Nueva contraseña">
+
+    <button class="password-save" onclick="changePassword()">Guardar contraseña</button>
+    <button class="password-cancel" onclick="closePasswordModal()">Cancelar</button>
+  </div>
+</div>
+
   <div class="app">
     <div class="header">
       <img src="logo.png" class="logo-img" />
@@ -934,6 +1106,118 @@
   </div>
 
   <script>
+
+    /* ===== USUARIOS Y SEGURIDAD POR RUTA ===== */
+    const USERS = [
+      { user:"admin", pass:"coca2026", rutas:["*"] },
+      { user:"cristian", pass:"1616", rutas:["16"] },
+      { user:"aldo", pass:"1717", rutas:["17"] },
+      { user:"pablo", pass:"4040", rutas:["40"] },
+      { user:"javier", pass:"4141", rutas:["41"] },
+      { user:"mauro", pass:"4242", rutas:["42"] },
+      { user:"diego", pass:"4343", rutas:["43"] },
+      { user:"carlos", pass:"4444", rutas:["44"] },
+      { user:"adrian", pass:"4545", rutas:["45"] }
+    ];
+
+    let currentUser = null;
+
+    function getStoredUsers(){
+      try{
+        return JSON.parse(localStorage.getItem("referencias_users_custom") || "{}");
+      }catch(e){
+        return {};
+      }
+    }
+
+    function getEffectiveUsers(){
+      const custom = getStoredUsers();
+      return USERS.map(u => ({
+        ...u,
+        pass: custom[u.user] || u.pass
+      }));
+    }
+
+    function loginApp(){
+      const user = document.getElementById("userInput").value.trim().toLowerCase();
+      const pass = document.getElementById("passInput").value.trim();
+
+      const foundUser = getEffectiveUsers().find(u => u.user === user && u.pass === pass);
+
+      if(foundUser){
+        currentUser = foundUser;
+        localStorage.setItem("referencias_login_user", JSON.stringify(foundUser));
+        startPrivateApp();
+      }else{
+        document.getElementById("loginError").style.display = "block";
+      }
+    }
+
+    function startPrivateApp(){
+      document.getElementById("loginOverlay").style.display = "none";
+      document.getElementById("sessionActions").style.display = "flex";
+      cargarDatosDesdeDrive();
+    }
+
+    function logoutApp(){
+      localStorage.removeItem("referencias_login_user");
+      location.reload();
+    }
+
+    function openPasswordModal(){
+      document.getElementById("currentPass").value = "";
+      document.getElementById("newPass").value = "";
+      document.getElementById("passwordModal").style.display = "flex";
+    }
+
+    function closePasswordModal(){
+      document.getElementById("passwordModal").style.display = "none";
+    }
+
+    function changePassword(){
+      if(!currentUser) return;
+
+      const current = document.getElementById("currentPass").value.trim();
+      const newPass = document.getElementById("newPass").value.trim();
+
+      const effective = getEffectiveUsers().find(u => u.user === currentUser.user);
+
+      if(!effective || current !== effective.pass){
+        alert("La contraseña actual es incorrecta");
+        return;
+      }
+
+      if(newPass.length < 4){
+        alert("La nueva contraseña debe tener al menos 4 caracteres");
+        return;
+      }
+
+      const custom = getStoredUsers();
+      custom[currentUser.user] = newPass;
+      localStorage.setItem("referencias_users_custom", JSON.stringify(custom));
+
+      currentUser.pass = newPass;
+      localStorage.setItem("referencias_login_user", JSON.stringify(currentUser));
+
+      alert("Contraseña actualizada correctamente");
+      closePasswordModal();
+    }
+
+    function userCanSeeRoute(ruta){
+      if(!currentUser) return false;
+      if(currentUser.rutas.includes("*")) return true;
+      return currentUser.rutas.includes(String(ruta || "").trim());
+    }
+
+    function filterClientesByUser(){
+      if(!currentUser) return;
+      if(currentUser.rutas.includes("*")) return;
+      state.clientes = state.clientes.filter(c => userCanSeeRoute(c.ruta));
+      if(state.rutaActual && !userCanSeeRoute(state.rutaActual)){
+        state.rutaActual = "";
+      }
+    }
+
     const SHEET_ID = "1SQAHZLQmBjkGeac7sEg9ChFQdwOVClcT";
 
     const URLS = {
@@ -1123,443 +1407,4 @@
           telefono: normalize(x.Telefono || x.TELEFONO || x.telefono)
         })).filter(x => x.numero && x.cliente);
 
-        state.compras = comprasRaw.map(x => ({
-          numero: normalize(x.Numero || x.NUMERO || x.numero),
-          producto: normalize(x.Producto || x.PRODUCTO || x.producto)
-        })).filter(x => x.numero && x.producto);
-
-        state.categorias.COLAS = colasRaw.map(x => normalize(x.Producto || x.PRODUCTO || x.producto)).filter(Boolean);
-        state.categorias.SABORES = saboresRaw.map(x => normalize(x.Producto || x.PRODUCTO || x.producto)).filter(Boolean);
-        state.categorias.STILLS = stillsRaw.map(x => normalize(x.Producto || x.PRODUCTO || x.producto)).filter(Boolean);
-        state.categorias.MULTICATEGORIAS = multiRaw.map(x => normalize(x.Producto || x.PRODUCTO || x.producto)).filter(Boolean);
-
-        state.clienteActual = "";
-        state.categoriaActual = "TODOS";
-        state.estadoProductos = "TODOS";
-        state.rutaActual = "";
-        searchClient.value = "";
-        clientSelect.value = "";
-        routeSelect.value = "";
-
-        buildRouteSelect();
-        buildClientSelect();
-        buildTabs();
-        render();
-
-        showInfo(`Datos cargados correctamente. Clientes: ${state.clientes.length}`);
-      } catch (error) {
-        console.error(error);
-        showError("No se pudieron cargar los datos desde Google Sheets.");
-        productos.innerHTML = `<div class="muted">No se pudieron cargar los datos.</div>`;
-      }
-    }
-
-    function getRutasDisponibles() {
-      const rutas = [...new Set(
-        state.clientes
-          .map(c => normalize(c.ruta))
-          .filter(Boolean)
-      )];
-
-      return rutas.sort((a, b) => {
-        const na = Number(a);
-        const nb = Number(b);
-        if (!Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
-        return a.localeCompare(b, "es");
-      });
-    }
-
-    function buildRouteSelect() {
-      const rutas = getRutasDisponibles();
-
-      routeSelect.innerHTML =
-        `<option value="">Todas las rutas</option>` +
-        rutas.map(r => `<option value="${escapeHtml(r)}">Ruta ${escapeHtml(r)}</option>`).join("");
-
-      routeSelect.value = state.rutaActual;
-    }
-
-    function clientesFiltradosBase() {
-      return state.clientes.filter(c => {
-        if (state.rutaActual && c.ruta !== state.rutaActual) return false;
-        return true;
-      });
-    }
-
-    function buildClientSelect() {
-      const term = slug(searchClient.value);
-
-      const filtrados = clientesFiltradosBase().filter(c => {
-        if (!term) return true;
-        return slug(c.numero).includes(term) || slug(c.cliente).includes(term);
-      });
-
-      clientSelect.innerHTML = `<option value="">Seleccionar cliente</option>` +
-        filtrados
-          .sort((a, b) => {
-            const rutaA = Number(a.ruta) || 9999;
-            const rutaB = Number(b.ruta) || 9999;
-            if (rutaA !== rutaB) return rutaA - rutaB;
-            return a.cliente.localeCompare(b.cliente, "es");
-          })
-          .map(c => `<option value="${escapeHtml(c.numero)}">${escapeHtml(c.numero)} - Ruta ${escapeHtml(c.ruta || "-")} - ${escapeHtml(c.cliente)}</option>`)
-          .join("");
-
-      if (state.clienteActual && filtrados.some(c => c.numero === state.clienteActual)) {
-        clientSelect.value = state.clienteActual;
-      } else {
-        state.clienteActual = "";
-        clientSelect.value = "";
-      }
-    }
-
-    function unique(list) {
-      const seen = new Set();
-      return list.filter(p => {
-        const key = slug(p);
-        if (!key || seen.has(key)) return false;
-        seen.add(key);
-        return !key.includes("faltante 197");
-      });
-    }
-
-    function catalogoActual() {
-      if (state.categoriaActual === "TODOS") {
-        return unique([
-          ...state.categorias.COLAS,
-          ...state.categorias.SABORES,
-          ...state.categorias.STILLS,
-          ...state.categorias.MULTICATEGORIAS
-        ]);
-      }
-      return unique(state.categorias[state.categoriaActual] || []);
-    }
-
-    function categoriaDeProducto(prod) {
-      if (state.categorias.COLAS.includes(prod)) return "Colas";
-      if (state.categorias.SABORES.includes(prod)) return "Sabores";
-      if (state.categorias.STILLS.includes(prod)) return "Stills";
-      if (state.categorias.MULTICATEGORIAS.includes(prod)) return "Multicategorías";
-      return "";
-    }
-
-    function getComprados(numero) {
-      return new Set(
-        state.compras
-          .filter(x => x.numero === numero)
-          .map(x => normalize(x.producto))
-      );
-    }
-
-    function tieneProductoPorTexto(compradosSet, texto) {
-      const buscado = slug(texto);
-      return [...compradosSet].some(p => slug(p).includes(buscado));
-    }
-
-    function cumpleCandadoSabores(compradosSet) {
-      const tieneCrush = [...compradosSet].some(p => slug(p).includes("crush"));
-      const tieneFantaManzana = [...compradosSet].some(p => {
-        const prod = slug(p);
-        return prod.includes("fanta") && prod.includes("manzana");
-      });
-
-      return tieneCrush && tieneFantaManzana;
-    }
-
-    function getCategoriaStats(cat, compradosSet) {
-      const lista = unique(state.categorias[cat] || []);
-      const objetivo = OBJETIVOS[cat] || lista.length;
-      const avanceReal = lista.filter(p => compradosSet.has(p)).length;
-      const avanceTope = Math.min(avanceReal, objetivo);
-      const porcentaje = objetivo ? Math.round((avanceTope / objetivo) * 100) : 0;
-
-      // CONDICIÓN ESPECIAL SABORES:
-      // Aunque llegue al objetivo de referencias, si no compró Crush y Fanta Manzana,
-      // no se activan los 5 puntos de Sabores.
-      const candadoSaboresOk = cat === "SABORES" ? cumpleCandadoSabores(compradosSet) : true;
-      const cumplio = avanceReal >= objetivo && candadoSaboresOk;
-      const puntos = cumplio ? PUNTOS_POR_CATEGORIA : 0;
-
-      let pillClass = "no";
-      if (porcentaje >= 100 && cumplio) pillClass = "ok";
-      else if (porcentaje >= 80) pillClass = "mid";
-      else pillClass = "no";
-
-      return {
-        cat,
-        objetivo,
-        avanceReal,
-        avanceTope,
-        porcentaje,
-        cumplio,
-        puntos,
-        pillClass,
-        candadoSaboresOk
-      };
-    }
-
-    function renderResumen(compradosSet) {
-      if (!state.clienteActual) {
-        resumen.style.display = "none";
-        resumen.innerHTML = "";
-        return;
-      }
-
-      const items = ["COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"].map(cat =>
-        getCategoriaStats(cat, compradosSet)
-      );
-
-      resumen.style.display = "flex";
-      resumen.innerHTML = items.map(item => `
-        <div class="resumen-item">
-          <div class="resumen-top">
-            <div class="resumen-label">${nombreCat(item.cat)}</div>
-            <div class="resumen-pill ${item.pillClass}">${item.porcentaje}%</div>
-          </div>
-          <div class="resumen-meta">${item.avanceReal} de ${item.objetivo} referencias</div>
-          <div class="progress-bar">
-            <div class="progress-fill ${item.pillClass}" style="width:${item.porcentaje}%"></div>
-          </div>
-          <div class="puntos-pill ${item.cumplio ? "ok" : ""}">
-            ${item.puntos} puntos
-          </div>
-          ${item.cat === "SABORES" && !item.candadoSaboresOk ? `
-            <div class="resumen-meta" style="color:#d6001c;">
-              Candado: falta Crush o Fanta Manzana
-            </div>
-          ` : ""}
-        </div>
-      `).join("");
-    }
-
-    function actualizarScore(cliente, compradosSet) {
-      if (!cliente) {
-        scoreCard.style.display = "none";
-        miniRuta.textContent = state.rutaActual || "-";
-        miniCategoria.textContent = nombreCat(state.categoriaActual);
-        return;
-      }
-
-      const stats = ["COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"].map(cat =>
-        getCategoriaStats(cat, compradosSet)
-      );
-
-      const puntosTotal = stats.reduce((acc, item) => acc + item.puntos, 0);
-
-      scoreCard.style.display = "flex";
-      scoreValor.textContent = puntosTotal;
-      miniRuta.textContent = cliente.ruta || "-";
-      miniCategoria.textContent = nombreCat(state.categoriaActual);
-      scoreEstado.textContent = `${puntosTotal} de ${PUNTAJE_TOTAL} puntos`;
-
-      if (puntosTotal >= 20) {
-        scoreValor.style.color = "#16823a";
-        scoreEstado.style.background = "#edf9f0";
-        scoreEstado.style.color = "#16823a";
-      } else if (puntosTotal >= 10) {
-        scoreValor.style.color = "#d88a00";
-        scoreEstado.style.background = "#fff6e7";
-        scoreEstado.style.color = "#d88a00";
-      } else {
-        scoreValor.style.color = "#d6001c";
-        scoreEstado.style.background = "#fff1f3";
-        scoreEstado.style.color = "#d6001c";
-      }
-    }
-
-    function render() {
-      state.clienteActual = clientSelect.value;
-      detailLabel.textContent = nombreCat(state.categoriaActual);
-      buildEstadoTabs();
-
-      if (!state.clientes.length) {
-        clienteInfo.style.display = "none";
-        whatsappActions.style.display = "none";
-        resumen.style.display = "none";
-        scoreCard.style.display = "none";
-        productos.innerHTML = `<div class="muted">No hay datos cargados.</div>`;
-        updateBadges([]);
-        return;
-      }
-
-      if (!state.clienteActual) {
-        clienteInfo.style.display = "none";
-        whatsappActions.style.display = "none";
-        resumen.style.display = "none";
-        scoreCard.style.display = "none";
-        miniRuta.textContent = state.rutaActual || "-";
-        miniCategoria.textContent = nombreCat(state.categoriaActual);
-
-        if (state.rutaActual) {
-          productos.innerHTML = `<div class="muted">Seleccioná un cliente de la ruta ${escapeHtml(state.rutaActual)} para ver el detalle.</div>`;
-        } else {
-          productos.innerHTML = `<div class="muted">Seleccioná una ruta o un cliente para ver el detalle.</div>`;
-        }
-
-        updateBadges([]);
-        return;
-      }
-
-      const cliente = state.clientes.find(x => x.numero === state.clienteActual);
-      const compradosSet = getComprados(state.clienteActual);
-
-      let lista = catalogoActual().map(prod => ({
-        producto: prod,
-        comprado: compradosSet.has(prod),
-        categoria: categoriaDeProducto(prod)
-      }));
-
-      if (state.estadoProductos === "CUMPLIDOS") {
-        lista = lista.filter(x => x.comprado);
-      }
-
-      if (state.estadoProductos === "FALTANTES") {
-        lista = lista.filter(x => !x.comprado);
-      }
-
-      lista.sort((a, b) => {
-        if (a.comprado !== b.comprado) return a.comprado ? -1 : 1;
-        return a.producto.localeCompare(b.producto, "es");
-      });
-
-      if (cliente) {
-        clienteInfo.style.display = "block";
-        whatsappActions.style.display = "grid";
-        clienteNombre.textContent = `${cliente.numero} - ${cliente.cliente}`;
-        clienteMeta.textContent = `Vendedor: ${cliente.vendedor || "-"} · Categoría visible: ${nombreCat(state.categoriaActual)}`;
-        routePill.textContent = `Ruta ${cliente.ruta || "-"}`;
-      }
-
-      actualizarScore(cliente, compradosSet);
-      renderResumen(compradosSet);
-
-      if (!lista.length) {
-        productos.innerHTML = `<div class="muted">No hay productos para mostrar.</div>`;
-        updateBadges([]);
-        return;
-      }
-
-      productos.innerHTML = lista.map(item => `
-        <div class="item ${item.comprado ? "item-ok" : "item-no"}">
-          <div class="item-main">
-            <div class="item-icon">${item.comprado ? "✓" : "!"}</div>
-            <div>
-              <div class="item-name">${escapeHtml(item.producto)}</div>
-              <div class="item-cat">${escapeHtml(item.categoria)}</div>
-            </div>
-          </div>
-          <div class="state ${item.comprado ? "state-ok" : "state-no"}">
-            ${item.comprado ? "Compró" : "Pendiente"}
-          </div>
-        </div>
-      `).join("");
-
-      updateBadges(lista);
-    }
-
-    function updateBadges(lista) {
-      const total = lista.length;
-      const comprados = lista.filter(x => x.comprado).length;
-      const pendientes = total - comprados;
-
-      badgeTotal.textContent = `Total: ${total}`;
-      badgeBought.textContent = `Comprados: ${comprados}`;
-      badgeMissing.textContent = `Pendientes: ${pendientes}`;
-    }
-
-    function armarTextoWhatsappGeneral(cliente, compradosSet) {
-      const categorias = ["COLAS", "SABORES", "STILLS", "MULTICATEGORIAS"];
-      const stats = categorias.map(cat => getCategoriaStats(cat, compradosSet));
-
-      const detalle = stats.map(item => {
-        let icono = "🔴";
-        if (item.porcentaje >= 100) icono = "🟢";
-        else if (item.porcentaje >= 80) icono = "🟡";
-
-        return [
-          `${icono} *${nombreCat(item.cat)}*`,
-          `Avance: ${item.porcentaje}%`,
-          `Referencias: ${item.avanceReal} de ${item.objetivo}`,
-          `Puntos: ${item.puntos}`
-        ].join("\n");
-      }).join("\n\n");
-
-      return [
-        `📊 *Avance de Referencias*`,
-        `Cliente: *${cliente.numero} - ${cliente.cliente}*`,
-        `Ruta: *${cliente.ruta || "-"}*`,
-        `Vendedor: *${cliente.vendedor || "-"}*`,
-        ``,
-        detalle
-      ].join("\n");
-    }
-
-    function enviarWhatsapp() {
-      if (!state.clienteActual) return;
-
-      const cliente = state.clientes.find(x => x.numero === state.clienteActual);
-      if (!cliente) return;
-
-      const compradosSet = getComprados(state.clienteActual);
-      const texto = armarTextoWhatsappGeneral(cliente, compradosSet);
-      const telefono = normalizarTelefonoAR(cliente.telefono);
-
-      const url = telefono
-        ? `https://wa.me/${telefono}?text=${encodeURIComponent(texto)}`
-        : `https://wa.me/?text=${encodeURIComponent(texto)}`;
-
-      window.open(url, "_blank");
-    }
-
-    routeSelect.addEventListener("change", () => {
-      state.rutaActual = routeSelect.value;
-      state.clienteActual = "";
-      buildClientSelect();
-      render();
-    });
-
-    searchClient.addEventListener("input", () => {
-      buildClientSelect();
-      render();
-    });
-
-    clientSelect.addEventListener("change", render);
-
-    btnReload.addEventListener("click", cargarDatosDesdeDrive);
-    btnWhatsappGeneral.addEventListener("click", () => enviarWhatsapp());
-
-    btnClear.addEventListener("click", () => {
-      searchClient.value = "";
-      state.clienteActual = "";
-      state.categoriaActual = "TODOS";
-      state.estadoProductos = "TODOS";
-      state.rutaActual = "";
-      routeSelect.value = "";
-      buildRouteSelect();
-      buildClientSelect();
-      buildTabs();
-      render();
-      hideError();
-      hideInfo();
-    });
-
-
-    function buildEstadoTabs() {
-      document.querySelectorAll(".tab-estado").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.estado === state.estadoProductos);
-      });
-    }
-
-    document.querySelectorAll(".tab-estado").forEach(btn => {
-      btn.addEventListener("click", () => {
-        state.estadoProductos = btn.dataset.estado;
-        buildEstadoTabs();
-        render();
-      });
-    });
-
-    buildTabs();
-    window.addEventListener("DOMContentLoaded", cargarDatosDesdeDrive);
-  </script>
-</body>
-</html>
+        filterClientesByUser();
