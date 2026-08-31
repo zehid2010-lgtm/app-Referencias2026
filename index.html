@@ -170,6 +170,43 @@
     .password-box button{width:100%;height:45px;border:none;border-radius:13px;margin-top:7px;font-weight:900}
     .password-save{background:var(--rojo);color:#fff}.password-cancel{background:#f3f4f6;color:#344054}
 
+    /* ===== NAVEGACION POR PANTALLAS ===== */
+    .app-screen{display:block}
+    .app-screen.is-hidden{display:none!important}
+    .home-reference-card{margin-bottom:14px}
+    .home-reference-card .tabs{margin-bottom:0}
+    .home-helper{margin:2px 0 12px;color:var(--sub);font-size:12px;font-weight:700;line-height:1.45}
+
+    .detail-screen{display:none}
+    .detail-screen.active{display:block;animation:screenIn .18s ease}
+    @keyframes screenIn{from{opacity:.35;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+
+    .detail-nav{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .back-btn{width:auto;min-height:44px;border:1px solid #e4e7ec;border-radius:14px;background:#fff;color:#344054;padding:0 14px;font-size:13px;font-weight:950;box-shadow:0 4px 12px rgba(17,24,39,.05)}
+    .detail-nav-copy{min-width:0;flex:1}
+    .detail-eyebrow{font-size:10px;color:#98a2b3;font-weight:900;text-transform:uppercase;letter-spacing:.7px}
+    .detail-nav-title{margin-top:2px;font-size:18px;font-weight:950;color:#101828;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    .detail-category-card{background:#fff;border:1px solid var(--borde);border-radius:22px;padding:15px;box-shadow:var(--sombra);margin-bottom:12px}
+    .detail-category-top{display:flex;align-items:center;gap:12px}
+    .detail-category-icon{width:50px;height:50px;flex:0 0 50px;border-radius:17px;display:flex;align-items:center;justify-content:center;font-size:24px;background:#f3f4f6}
+    .detail-category-copy{min-width:0;flex:1}
+    .detail-category-name{font-size:19px;font-weight:950;line-height:1.15}
+    .detail-category-meta{margin-top:4px;font-size:11px;color:var(--sub);font-weight:800}
+    .detail-points{flex:0 0 auto;border-radius:10px;padding:6px 9px;background:var(--amarillo-soft);color:#d97706;font-size:11px;font-weight:950}
+    .detail-points.ok{background:var(--verde-soft);color:var(--verde)}
+    .detail-progress{margin-top:13px}
+    .detail-progress-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:7px;font-size:11px;font-weight:900;color:#667085}
+
+    .detail-list-card{background:#fff;border:1px solid var(--borde);border-radius:22px;padding:14px;box-shadow:var(--sombra)}
+    .detail-list-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
+    .detail-list-title h2{margin:0;font-size:17px;font-weight:950}
+    .detail-count{border-radius:999px;background:var(--rojo-soft);color:var(--rojo);padding:6px 9px;font-size:10px;font-weight:950}
+    .detail-hint{margin:0 0 10px;font-size:11px;color:var(--sub);font-weight:700}
+
+    .detail-screen .tabs-estado{margin-top:8px}
+    .detail-screen .whatsapp-actions{margin-top:12px}
+
     @media(max-width:430px){
       .content{padding:0 10px}
       .select-grid{grid-template-columns:1fr}
@@ -216,66 +253,106 @@
 <div class="app">
   <header class="header">
     <div class="header-top"><img src="logo.png" class="logo-img" alt="Logo"></div>
-    <h1>Cobertura por Cliente</h1>
-    <p>Avance de referencias por ruta</p>
+    <h1 id="appTitle">Cobertura por Cliente</h1>
+    <p id="appSubtitle">Avance de referencias por ruta</p>
   </header>
 
   <main class="content">
-    <section class="search-card">
-      <div class="search-wrap">
-        <span class="search-icon">⌕</span>
-        <input id="searchClient" type="text" placeholder="Buscar cliente: número o razón social" autocomplete="off" />
-      </div>
-      <div class="select-grid">
-        <select id="routeSelect" aria-label="Ruta"><option value="">Todas las rutas</option></select>
-        <select id="clientSelect" aria-label="Cliente"><option value="">Seleccionar cliente</option></select>
-      </div>
-      <div class="search-actions">
-        <button id="btnReload" class="btn-primary" type="button">↻ Actualizar</button>
-        <button id="btnClear" class="btn-secondary" type="button">Limpiar</button>
-      </div>
-      <div class="badges">
-        <div class="badge" id="badgeTotal">Total: 0</div>
-        <div class="badge ok" id="badgeBought">Comprados: 0</div>
-        <div class="badge no" id="badgeMissing">Pendientes: 0</div>
-      </div>
-      <div id="infoMsg" class="msg info"></div>
-      <div id="errorMsg" class="msg error"></div>
-    </section>
+    <!-- PANTALLA PRINCIPAL -->
+    <div id="homeScreen" class="app-screen">
+      <section class="search-card">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input id="searchClient" type="text" placeholder="Buscar cliente: número o razón social" autocomplete="off" />
+        </div>
+        <div class="select-grid">
+          <select id="routeSelect" aria-label="Ruta"><option value="">Todas las rutas</option></select>
+          <select id="clientSelect" aria-label="Cliente"><option value="">Seleccionar cliente</option></select>
+        </div>
+        <div class="search-actions">
+          <button id="btnReload" class="btn-primary" type="button">↻ Actualizar</button>
+          <button id="btnClear" class="btn-secondary" type="button">Limpiar</button>
+        </div>
+        <div class="badges" style="display:none">
+          <div class="badge" id="badgeTotal">Total: 0</div>
+          <div class="badge ok" id="badgeBought">Comprados: 0</div>
+          <div class="badge no" id="badgeMissing">Pendientes: 0</div>
+        </div>
+        <div id="infoMsg" class="msg info"></div>
+        <div id="errorMsg" class="msg error"></div>
+      </section>
 
-    <section class="client-score-wrap">
-      <div class="cliente-info" id="clienteInfo">
-        <div class="cliente-top">
-          <div><h3 id="clienteNombre"></h3><p id="clienteMeta"></p></div>
-          <div class="route-pill" id="routePill">Ruta -</div>
+      <section class="client-score-wrap">
+        <div class="cliente-info" id="clienteInfo">
+          <div class="cliente-top">
+            <div><h3 id="clienteNombre"></h3><p id="clienteMeta"></p></div>
+            <div class="route-pill" id="routePill">Ruta -</div>
+          </div>
+        </div>
+        <div id="scoreCard" class="score-card">
+          <div class="score-label">Score</div>
+          <div class="score-ring"><div class="score-inner"><div id="scoreValor" class="score-valor">0</div><div class="score-de">de 20</div></div></div>
+          <div id="scoreEstado" class="score-estado">0% del objetivo</div>
+        </div>
+      </section>
+
+      <div class="mini-panel" aria-hidden="true"><div id="miniCategoria">Todos</div><div id="miniRuta">-</div></div>
+
+      <section class="main-card">
+        <div class="section-head"><h2>Avance por categoría</h2><span>tocá una categoría para verla</span></div>
+        <div id="resumen" class="resumen"></div>
+      </section>
+
+      <!-- Contenedor técnico oculto: mantiene la lógica existente sin mostrar una segunda fila de opciones -->
+      <div id="tabs" hidden></div>
+    </div>
+
+    <!-- PANTALLA DE DETALLE DE CATEGORIA -->
+    <section id="detailScreen" class="detail-screen" aria-live="polite">
+      <div class="detail-nav">
+        <button id="btnBackMain" class="back-btn" type="button">← Volver</button>
+        <div class="detail-nav-copy">
+          <div class="detail-eyebrow">Detalle de referencias</div>
+          <div id="detailClientName" class="detail-nav-title">Cliente</div>
         </div>
       </div>
-      <div id="scoreCard" class="score-card">
-        <div class="score-label">Score</div>
-        <div class="score-ring"><div class="score-inner"><div id="scoreValor" class="score-valor">0</div><div class="score-de">de 20</div></div></div>
-        <div id="scoreEstado" class="score-estado">0% del objetivo</div>
+
+      <div class="detail-category-card">
+        <div class="detail-category-top">
+          <div id="detailCategoryIcon" class="detail-category-icon">📋</div>
+          <div class="detail-category-copy">
+            <div id="detailCategoryName" class="detail-category-name">Todas las referencias</div>
+            <div id="detailCategoryMeta" class="detail-category-meta">Seleccioná Faltantes, Cumplidos o Todos</div>
+          </div>
+          <div id="detailPoints" class="detail-points">0 pts</div>
+        </div>
+        <div id="detailProgressBlock" class="detail-progress">
+          <div class="detail-progress-head"><span id="detailProgressText">0 de 0 referencias</span><span id="detailProgressPercent">0%</span></div>
+          <div class="progress-bar"><div id="detailProgressFill" class="progress-fill no" style="width:0%"></div></div>
+        </div>
       </div>
-    </section>
 
-    <div class="mini-panel" aria-hidden="true"><div id="miniCategoria">Todos</div><div id="miniRuta">-</div></div>
+      <div class="detail-list-card">
+        <div class="detail-list-title">
+          <h2 id="detailListTitle">Faltantes</h2>
+          <span id="detailCount" class="detail-count">0 referencias</span>
+        </div>
+        <p id="detailHint" class="detail-hint">Referencias pendientes de compra.</p>
 
-    <section class="main-card">
-      <div class="section-head"><h2>Avance por categoría</h2><span>tocá una categoría para verla</span></div>
-      <div id="resumen" class="resumen"></div>
+        <div class="tabs-estado">
+          <button class="tab-estado no active" type="button" data-estado="FALTANTES">Faltantes</button>
+          <button class="tab-estado ok" type="button" data-estado="CUMPLIDOS">Cumplidos</button>
+          <button class="tab-estado" type="button" data-estado="TODOS">Todos</button>
+        </div>
 
-      <div class="section-head"><h2>Referencias</h2><span id="detailLabel">Todos</span></div>
-      <div class="tabs" id="tabs"></div>
-      <div class="tabs-estado">
-        <button class="tab-estado no active" type="button" data-estado="FALTANTES">Faltantes</button>
-        <button class="tab-estado ok" type="button" data-estado="CUMPLIDOS">Cumplidos</button>
-        <button class="tab-estado" type="button" data-estado="TODOS">Todos</button>
+        <div id="productos" class="list"><div class="muted">Seleccioná un cliente para ver el detalle.</div></div>
+
+        <div class="whatsapp-actions" id="whatsappActions">
+          <button id="btnWhatsappGeneral" class="wa-main" type="button">🟢 Enviar avance por WhatsApp</button>
+        </div>
+        <div class="footer-note">Cobertura por cliente · Detalle por categoría</div>
       </div>
-      <div id="productos" class="list"><div class="muted">Cargando datos desde Drive...</div></div>
-
-      <div class="whatsapp-actions" id="whatsappActions">
-        <button id="btnWhatsappGeneral" class="wa-main" type="button">🟢 Enviar avance por WhatsApp</button>
-      </div>
-      <div class="footer-note">Cobertura por cliente · Vista simplificada</div>
+      <span id="detailLabel" style="display:none">Todos</span>
     </section>
   </main>
 </div>
@@ -350,6 +427,23 @@
     const detailLabel = $("detailLabel");
     const whatsappActions = $("whatsappActions");
     const btnWhatsappGeneral = $("btnWhatsappGeneral");
+    const homeScreen = $("homeScreen");
+    const detailScreen = $("detailScreen");
+    const btnBackMain = $("btnBackMain");
+    const appTitle = $("appTitle");
+    const appSubtitle = $("appSubtitle");
+    const detailClientName = $("detailClientName");
+    const detailCategoryIcon = $("detailCategoryIcon");
+    const detailCategoryName = $("detailCategoryName");
+    const detailCategoryMeta = $("detailCategoryMeta");
+    const detailPoints = $("detailPoints");
+    const detailProgressBlock = $("detailProgressBlock");
+    const detailProgressText = $("detailProgressText");
+    const detailProgressPercent = $("detailProgressPercent");
+    const detailProgressFill = $("detailProgressFill");
+    const detailListTitle = $("detailListTitle");
+    const detailCount = $("detailCount");
+    const detailHint = $("detailHint");
 
 
     /* ===== LOGIN Y PERMISOS POR VENDEDOR - CORREGIDO ===== */
@@ -597,18 +691,95 @@
 
     function buildTabs() {
       tabs.innerHTML = CATS.map(cat => `
-        <button class="tab ${state.categoriaActual === cat ? "active" : ""}" data-cat="${cat}">
+        <button class="tab" type="button" data-cat="${cat}">
           ${nombreCat(cat)}
         </button>
       `).join("");
 
       tabs.querySelectorAll(".tab").forEach(btn => {
-        btn.addEventListener("click", () => {
-          state.categoriaActual = btn.dataset.cat;
-          buildTabs();
-          render();
-        });
+        btn.addEventListener("click", () => openCategoryScreen(btn.dataset.cat));
       });
+    }
+
+    function iconoCategoria(cat){
+      if(cat === "COLAS") return "🥤";
+      if(cat === "SABORES") return "🍊";
+      if(cat === "STILLS") return "💧";
+      if(cat === "MULTICATEGORIAS") return "📦";
+      return "📋";
+    }
+
+    function actualizarCabeceraDetalle(){
+      if(!state.clienteActual) return;
+      const cliente = state.clientes.find(x => x.numero === state.clienteActual);
+      const compradosSet = getComprados(state.clienteActual);
+      const cat = state.categoriaActual;
+      const esTodos = cat === "TODOS";
+
+      detailClientName.textContent = cliente ? `${cliente.numero} - ${cliente.cliente}` : "Cliente";
+      detailCategoryIcon.textContent = iconoCategoria(cat);
+      detailCategoryName.textContent = esTodos ? "Todas las referencias" : nombreCat(cat);
+
+      if(esTodos){
+        const catalogo = catalogoActual();
+        const comprados = catalogo.filter(p => compradosSet.has(p)).length;
+        const pct = catalogo.length ? Math.round((comprados / catalogo.length) * 100) : 0;
+        detailCategoryMeta.textContent = "Vista general de todas las categorías";
+        detailPoints.textContent = "General";
+        detailPoints.classList.remove("ok");
+        detailProgressText.textContent = `${comprados} de ${catalogo.length} referencias compradas`;
+        detailProgressPercent.textContent = `${pct}%`;
+        detailProgressFill.style.width = `${pct}%`;
+        detailProgressFill.className = `progress-fill ${pct >= 100 ? "ok" : pct >= 80 ? "mid" : "no"}`;
+      }else{
+        const s = getCategoriaStats(cat, compradosSet);
+        detailCategoryMeta.textContent = cat === "SABORES" && !s.candadoSaboresOk
+          ? "Para puntuar debe cumplir también Crush y Fanta Manzana"
+          : `Objetivo: ${s.objetivo} referencias`;
+        detailPoints.textContent = s.cumplio ? "+5 pts" : "0 pts";
+        detailPoints.classList.toggle("ok", s.cumplio);
+        detailProgressText.textContent = `${s.avanceReal} de ${s.objetivo} referencias`;
+        detailProgressPercent.textContent = `${s.porcentaje}%`;
+        detailProgressFill.style.width = `${s.porcentaje}%`;
+        detailProgressFill.className = `progress-fill ${s.pillClass}`;
+      }
+
+      const titulos = {
+        FALTANTES:["Faltantes","Referencias pendientes de compra."],
+        CUMPLIDOS:["Cumplidos","Referencias que el cliente ya compró."],
+        TODOS:["Todas las referencias","Compradas y pendientes en una sola lista."]
+      };
+      const cfg = titulos[state.estadoProductos] || titulos.FALTANTES;
+      detailListTitle.textContent = cfg[0];
+      detailHint.textContent = cfg[1];
+    }
+
+    function openCategoryScreen(cat){
+      if(!state.clienteActual){
+        showInfo("Primero seleccioná un cliente para abrir una categoría.");
+        return;
+      }
+      state.categoriaActual = cat || "TODOS";
+      state.estadoProductos = "FALTANTES";
+      homeScreen.classList.add("is-hidden");
+      detailScreen.classList.add("active");
+      appTitle.textContent = nombreCat(state.categoriaActual) === "Todos" ? "Referencias" : nombreCat(state.categoriaActual);
+      const cliente = state.clientes.find(x => x.numero === state.clienteActual);
+      appSubtitle.textContent = cliente ? `${cliente.numero} · Ruta ${cliente.ruta || "-"}` : "Detalle por categoría";
+      buildEstadoTabs();
+      render();
+      actualizarCabeceraDetalle();
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+
+    function closeCategoryScreen(){
+      detailScreen.classList.remove("active");
+      homeScreen.classList.remove("is-hidden");
+      appTitle.textContent = "Cobertura por Cliente";
+      appSubtitle.textContent = "Avance de referencias por ruta";
+      state.estadoProductos = "FALTANTES";
+      buildEstadoTabs();
+      window.scrollTo({top:0, behavior:"smooth"});
     }
 
     async function cargarCSV(url) {
@@ -882,12 +1053,7 @@
       `).join("");
 
       resumen.querySelectorAll(".resumen-click").forEach(btn => {
-        btn.addEventListener("click", () => {
-          state.categoriaActual = btn.dataset.cat;
-          buildTabs();
-          render();
-          document.getElementById("productos")?.scrollIntoView({behavior:"smooth", block:"start"});
-        });
+        btn.addEventListener("click", () => openCategoryScreen(btn.dataset.cat));
       });
     }
 
@@ -997,6 +1163,10 @@
       if (!lista.length) {
         productos.innerHTML = `<div class="muted">No hay referencias en este filtro.</div>`;
         updateBadges([]);
+        if(detailScreen && detailScreen.classList.contains("active")){
+          detailCount.textContent = "0 referencias";
+          actualizarCabeceraDetalle();
+        }
         return;
       }
 
@@ -1014,6 +1184,10 @@
       `).join("");
 
       updateBadges(lista);
+      if(detailScreen && detailScreen.classList.contains("active")){
+        detailCount.textContent = `${lista.length} ${lista.length === 1 ? "referencia" : "referencias"}`;
+        actualizarCabeceraDetalle();
+      }
     }
 
     function updateBadges(lista) {
@@ -1101,6 +1275,10 @@
       render();
       hideError();
       hideInfo();
+      if(detailScreen) detailScreen.classList.remove("active");
+      if(homeScreen) homeScreen.classList.remove("is-hidden");
+      if(appTitle) appTitle.textContent = "Cobertura por Cliente";
+      if(appSubtitle) appSubtitle.textContent = "Avance de referencias por ruta";
     });
 
 
@@ -1117,6 +1295,8 @@
         render();
       });
     });
+
+    if(btnBackMain) btnBackMain.addEventListener("click", closeCategoryScreen);
 
     buildTabs();
     window.addEventListener("DOMContentLoaded", restoreSession);
