@@ -136,12 +136,14 @@
     .item-cat-pill{flex:0 0 auto;max-width:115px;border-radius:999px;background:linear-gradient(180deg,#f8fbff,#eaf4ff);color:#1565b8;padding:6px 10px;font-size:10px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid #d4e6fb;box-shadow:0 7px 14px rgba(22,119,210,.08), inset 0 1px 0 rgba(255,255,255,.95)}
     .muted{text-align:center;padding:18px 12px;border:1px dashed #dfe3e8;border-radius:16px;background:#fafbfc;color:#7b8494;font-size:12px;font-weight:800}
 
-    .whatsapp-actions{position:fixed;right:16px;bottom:88px;z-index:9998;display:none;align-items:center;gap:10px}
+    .whatsapp-actions{position:fixed;right:18px;bottom:84px;z-index:9998;display:none;align-items:center;justify-content:center}
     .whatsapp-actions.show{display:flex}
-    .wa-hint{display:inline-flex;align-items:center;min-height:40px;padding:0 12px;border-radius:999px;background:linear-gradient(180deg,#ffffff,#f4fff8);color:#0f7a38;border:1px solid #cdeed9;font-size:12px;font-weight:900;box-shadow:0 10px 24px rgba(14,166,77,.14), inset 0 1px 0 rgba(255,255,255,.95)}
-    .wa-main{width:64px;height:64px;border:none;border-radius:50%;padding:0;background:transparent;display:flex;align-items:center;justify-content:center;box-shadow:0 14px 28px rgba(18,140,126,.20);overflow:hidden}
-    .wa-main img{width:100%;height:100%;object-fit:contain;display:block}
-    .wa-main:active{transform:scale(.97)}
+    .wa-hint{display:none}
+    .wa-main{width:62px;height:62px;border:none;border-radius:50%;padding:0;background:linear-gradient(135deg,#25D366 0%,#18b851 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 14px 28px rgba(37,211,102,.28),0 4px 10px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,.35);transition:transform .15s ease, box-shadow .2s ease}
+    .wa-main:hover{transform:translateY(-1px);box-shadow:0 18px 34px rgba(37,211,102,.32),0 6px 12px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.35)}
+    .wa-main:active{transform:scale(.96)}
+    .wa-main svg{width:31px;height:31px;display:block}
+    .wa-main::after{content:"";position:absolute;width:74px;height:74px;border-radius:50%;background:rgba(37,211,102,.10);z-index:-1}
     .footer-note{text-align:center;color:#98a2b3;font-size:10px;font-weight:700;margin-top:13px}
 
     /* SESSION */
@@ -220,9 +222,9 @@
       .score-valor{font-size:27px}
       .item-cat-pill{max-width:92px}
       .header h1{font-size:23px}
-      .whatsapp-actions{right:12px;bottom:78px}
-      .wa-hint{display:none}
-      .wa-main{width:58px;height:58px}
+      .whatsapp-actions{right:12px;bottom:74px}
+      .wa-main{width:56px;height:56px}
+      .wa-main svg{width:28px;height:28px}
     }
   </style>
 </head>
@@ -361,8 +363,11 @@
     </section>
 
     <div class="whatsapp-actions" id="whatsappActions">
-      <div class="wa-hint">WhatsApp</div>
-      <button id="btnWhatsappGeneral" class="wa-main" type="button" aria-label="Enviar avance por WhatsApp"><img src="whatsapp-icon.png" alt="WhatsApp"></button>
+      <button id="btnWhatsappGeneral" class="wa-main" type="button" aria-label="Enviar avance por WhatsApp" title="Enviar avance por WhatsApp">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path fill="#ffffff" d="M19.05 4.94A9.82 9.82 0 0 0 12.03 2C6.53 2 2.05 6.48 2.05 11.98c0 1.76.46 3.48 1.33 5L2 22l5.16-1.35a9.9 9.9 0 0 0 4.86 1.24h.01c5.5 0 9.97-4.48 9.97-9.98 0-2.66-1.04-5.16-2.95-6.97Zm-7.02 15.26h-.01a8.26 8.26 0 0 1-4.21-1.15l-.3-.18-3.06.8.82-2.99-.2-.31a8.28 8.28 0 0 1-1.28-4.39c0-4.56 3.7-8.26 8.25-8.26 2.2 0 4.27.86 5.82 2.42a8.2 8.2 0 0 1 2.41 5.84c0 4.55-3.7 8.25-8.24 8.25Zm4.53-6.17c-.25-.13-1.49-.73-1.72-.81-.23-.08-.39-.12-.56.12-.16.25-.64.81-.78.98-.14.16-.28.19-.52.06-.25-.13-1.04-.38-1.98-1.2-.73-.66-1.22-1.46-1.36-1.71-.14-.25-.02-.38.11-.51.12-.12.25-.28.37-.42.12-.14.16-.24.25-.41.08-.16.04-.31-.02-.43-.06-.12-.56-1.35-.76-1.85-.2-.48-.41-.42-.56-.42h-.48c-.16 0-.43.06-.66.31-.23.25-.87.85-.87 2.08 0 1.22.89 2.41 1.01 2.58.12.16 1.75 2.67 4.24 3.74.59.26 1.06.42 1.42.54.6.19 1.14.16 1.58.1.48-.07 1.49-.61 1.69-1.2.21-.59.21-1.1.15-1.2-.06-.1-.22-.16-.47-.28Z"></path>
+        </svg>
+      </button>
     </div>
   </main>
 </div>
