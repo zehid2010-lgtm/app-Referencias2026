@@ -136,8 +136,11 @@
     .item-cat-pill{flex:0 0 auto;max-width:115px;border-radius:999px;background:linear-gradient(180deg,#f8fbff,#eaf4ff);color:#1565b8;padding:6px 10px;font-size:10px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid #d4e6fb;box-shadow:0 7px 14px rgba(22,119,210,.08), inset 0 1px 0 rgba(255,255,255,.95)}
     .muted{text-align:center;padding:18px 12px;border:1px dashed #dfe3e8;border-radius:16px;background:#fafbfc;color:#7b8494;font-size:12px;font-weight:800}
 
-    .whatsapp-actions{display:none;margin:12px 0 0}
-    .wa-main{width:100%;border:none;border-radius:15px;padding:13px;background:linear-gradient(135deg,#20c75a,#0ea64d);color:#fff;font-size:13px;font-weight:950;box-shadow:0 8px 18px rgba(14,166,77,.2)}
+    .whatsapp-actions{position:fixed;right:16px;bottom:88px;z-index:9998;display:none;align-items:center;gap:10px}
+    .whatsapp-actions.show{display:flex}
+    .wa-hint{display:inline-flex;align-items:center;min-height:40px;padding:0 12px;border-radius:999px;background:linear-gradient(180deg,#ffffff,#f4fff8);color:#0f7a38;border:1px solid #cdeed9;font-size:12px;font-weight:900;box-shadow:0 10px 24px rgba(14,166,77,.14), inset 0 1px 0 rgba(255,255,255,.95)}
+    .wa-main{width:58px;height:58px;border:none;border-radius:50%;padding:0;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;font-size:28px;font-weight:950;display:flex;align-items:center;justify-content:center;box-shadow:0 14px 28px rgba(18,140,126,.28), inset 0 1px 0 rgba(255,255,255,.28)}
+    .wa-main:active{transform:scale(.97)}
     .footer-note{text-align:center;color:#98a2b3;font-size:10px;font-weight:700;margin-top:13px}
 
     /* SESSION */
@@ -216,6 +219,9 @@
       .score-valor{font-size:27px}
       .item-cat-pill{max-width:92px}
       .header h1{font-size:23px}
+      .whatsapp-actions{right:12px;bottom:78px}
+      .wa-hint{display:none}
+      .wa-main{width:54px;height:54px;font-size:26px}
     }
   </style>
 </head>
@@ -349,7 +355,8 @@
         <div id="productos" class="list"><div class="muted">Seleccioná un cliente para ver el detalle.</div></div>
 
         <div class="whatsapp-actions" id="whatsappActions">
-          <button id="btnWhatsappGeneral" class="wa-main" type="button">🟢 Enviar avance por WhatsApp</button>
+          <div class="wa-hint">WhatsApp</div>
+          <button id="btnWhatsappGeneral" class="wa-main" type="button" aria-label="Enviar avance por WhatsApp">💬</button>
         </div>
         <div class="footer-note">Cobertura por cliente · Detalle por categoría</div>
       </div>
@@ -1102,7 +1109,7 @@
 
       if (!state.clientes.length) {
         clienteInfo.style.display = "none";
-        whatsappActions.style.display = "none";
+        whatsappActions.classList.remove("show");
         resumen.style.display = "none";
         scoreCard.style.display = "none";
         productos.innerHTML = `<div class="muted">No hay datos cargados.</div>`;
@@ -1112,7 +1119,7 @@
 
       if (!state.clienteActual) {
         clienteInfo.style.display = "none";
-        whatsappActions.style.display = "none";
+        whatsappActions.classList.remove("show");
         resumen.style.display = "none";
         scoreCard.style.display = "none";
         miniRuta.textContent = state.rutaActual || "-";
@@ -1152,7 +1159,7 @@
 
       if (cliente) {
         clienteInfo.style.display = "block";
-        whatsappActions.style.display = "grid";
+        whatsappActions.classList.add("show");
         clienteNombre.textContent = `${cliente.numero} - ${cliente.cliente}`;
         clienteMeta.textContent = `Vendedor: ${cliente.vendedor || "-"} · Categoría visible: ${nombreCat(state.categoriaActual)}`;
         routePill.textContent = `Ruta ${cliente.ruta || "-"}`;
