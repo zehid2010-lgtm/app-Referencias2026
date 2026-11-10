@@ -867,11 +867,18 @@
           routeSelect.value = currentUser.rutas[0];
           state.rutaActual = currentUser.rutas[0];
         }
+        const codigoSolicitado = new URLSearchParams(window.location.search).get("cliente");
+        const clienteSolicitado = codigoSolicitado && clientesFiltradosBase().find(c => c.numero === codigoSolicitado);
+        if (clienteSolicitado) state.clienteActual = clienteSolicitado.numero;
         buildClientSelect();
         buildTabs();
         render();
 
-        showInfo(`Datos cargados correctamente. Clientes: ${state.clientes.length}`);
+        if (codigoSolicitado && !clienteSolicitado) {
+          showInfo("El cliente solicitado no está disponible para este usuario.");
+        } else {
+          showInfo(`Datos cargados correctamente. Clientes: ${state.clientes.length}`);
+        }
       } catch (error) {
         console.error(error);
         showError("No se pudieron cargar los datos desde Google Sheets.");
