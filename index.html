@@ -272,7 +272,7 @@
   <main class="content">
     <!-- PANTALLA PRINCIPAL -->
     <div id="homeScreen" class="app-screen">
-      <section class="search-card">
+      <section class="search-card" id="clientSearchCard">
         <div class="search-wrap">
           <span class="search-icon">⌕</span>
           <input id="searchClient" type="text" placeholder="Buscar cliente: número o razón social" autocomplete="off" />
@@ -894,6 +894,9 @@
         const codigoSolicitado = new URLSearchParams(window.location.search).get("cliente");
         const clienteSolicitado = codigoSolicitado && clientesFiltradosBase().find(c => c.numero === codigoSolicitado);
         if (clienteSolicitado) state.clienteActual = clienteSolicitado.numero;
+        if (clienteSolicitado && new URLSearchParams(location.search).get("origen") === "volumen") {
+          document.getElementById("clientSearchCard").style.display = "none";
+        }
         buildClientSelect();
         buildTabs();
         render();
