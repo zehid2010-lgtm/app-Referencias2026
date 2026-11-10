@@ -5,7 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cobertura por Cliente</title>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script>
+    const entryParams = new URLSearchParams(location.search);
+    if (entryParams.get("origen") === "volumen" && entryParams.get("cliente")) {
+      document.documentElement.classList.add("from-volume");
+    }
+  </script>
   <style>
+    .from-volume #clientSearchCard { display: none; }
     :root{
       --rojo:#e30613;
       --rojo-osc:#b8000b;
@@ -902,20 +909,19 @@
         const codigoSolicitado = new URLSearchParams(window.location.search).get("cliente");
         const clienteSolicitado = codigoSolicitado && clientesFiltradosBase().find(c => c.numero === codigoSolicitado);
         if (clienteSolicitado) state.clienteActual = clienteSolicitado.numero;
-        if (clienteSolicitado && new URLSearchParams(location.search).get("origen") === "volumen") {
-          document.getElementById("clientSearchCard").style.display = "none";
-        }
         buildClientSelect();
         buildTabs();
         render();
 
         if (codigoSolicitado && !clienteSolicitado) {
+          document.documentElement.classList.remove("from-volume");
           showInfo("El cliente solicitado no está disponible para este usuario.");
         } else {
           showInfo(`Datos cargados correctamente. Clientes: ${state.clientes.length}`);
         }
       } catch (error) {
         console.error(error);
+        document.documentElement.classList.remove("from-volume");
         showError("No se pudieron cargar los datos desde Google Sheets.");
         productos.innerHTML = `<div class="muted">No se pudieron cargar los datos.</div>`;
       }
