@@ -608,6 +608,14 @@
         const url = new URL("../auditoria_volumen/", location.href);
         url.searchParams.set("cliente", params.get("cliente") || "");
         volver.href = url.href;
+        volver.addEventListener("click", event => {
+          const anterior = document.referrer && new URL(document.referrer);
+          if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+          if (anterior && anterior.origin === url.origin && anterior.pathname === url.pathname && history.length > 1) {
+            event.preventDefault();
+            history.back();
+          }
+        });
         volver.style.display = "block";
         volver.hidden = false;
         let volumeUser;
