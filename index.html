@@ -13,6 +13,15 @@
   </script>
   <style>
     .from-volume #clientSearchCard { display: none; }
+    body.referencias-bloqueada > :not(#avisoAccesoVolumen) { display: none !important; }
+    #avisoAccesoVolumen { display: none; }
+    html:not(.from-volume) .referencias-bloqueada #avisoAccesoVolumen {
+      display: block;
+      max-width: 420px;
+      margin: 48px auto;
+      padding: 24px;
+      text-align: center;
+    }
     :root{
       --rojo:#e30613;
       --rojo-osc:#b8000b;
@@ -235,7 +244,12 @@
     }
   </style>
 </head>
-<body>
+<body class="referencias-bloqueada">
+  <main id="avisoAccesoVolumen" class="main-card">
+    <h1>Referencias</h1>
+    <p>Ingresá desde la ficha de un cliente en Volumen.</p>
+    <a href="../auditoria_volumen/" class="btn-primary" style="display:inline-block;padding:12px 20px;text-decoration:none;">Ir a Volumen</a>
+  </main>
 
 <div id="loginOverlay" class="login-overlay">
   <div class="login-box">
@@ -609,8 +623,8 @@
     }
 
     function restoreSession(){
-      const params = new URLSearchParams(location.search);
-      if (params.get("origen") === "volumen") {
+      const params = entryParams;
+      if (params.get("origen") === "volumen" && params.get("cliente")) {
         const volver = document.getElementById("volverVolumen");
         const url = new URL("../auditoria_volumen/", location.href);
         url.searchParams.set("cliente", params.get("cliente") || "");
@@ -629,35 +643,18 @@
         try {
           volumeUser = JSON.parse(localStorage.getItem("app_login_user") || "null")?.user;
         } catch {
-          // Una sesión dañada debe seguir el flujo de ingreso habitual.
+          // Una sesión inválida muestra el acceso a Volumen.
         }
         const baseUser = USERS.find(u => u.user === volumeUser);
         if (baseUser) {
           currentUser = { ...baseUser };
+          document.body.classList.remove("referencias-bloqueada");
           startPrivateApp();
           document.getElementById("sessionActions").style.display = "none";
           return;
         }
       }
-      const saved = localStorage.getItem(LOGIN_STORAGE_KEY);
-      if(!saved) return;
-
-      try{
-        const parsed = JSON.parse(saved);
-        const baseUser = USERS.find(u => u.user === parsed.user);
-        if(baseUser){
-          const custom = getStoredUsers();
-          currentUser = {
-            ...baseUser,
-            pass: custom[baseUser.user] || baseUser.pass
-          };
-          startPrivateApp();
-        }else{
-          localStorage.removeItem(LOGIN_STORAGE_KEY);
-        }
-      }catch(e){
-        localStorage.removeItem(LOGIN_STORAGE_KEY);
-      }
+      document.documentElement.classList.remove("from-volume");
     }
 
 
