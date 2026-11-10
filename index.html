@@ -245,6 +245,8 @@
   </div>
 </div>
 
+<a id="volverVolumen" hidden style="margin:12px auto;padding:10px 16px;width:fit-content;border-radius:24px;background:#e90012;color:#fff;font-weight:800;text-decoration:none;">← Volver a Volumen</a>
+
 <div id="sessionActions" class="session-actions">
   <button class="session-btn pass" type="button" onclick="openPasswordModal()">🔑 Clave</button>
   <button class="session-btn" type="button" onclick="logoutApp()">Salir</button>
@@ -600,6 +602,28 @@
     }
 
     function restoreSession(){
+      const params = new URLSearchParams(location.search);
+      if (params.get("origen") === "volumen") {
+        const volver = document.getElementById("volverVolumen");
+        const url = new URL("../auditoria_volumen/", location.href);
+        url.searchParams.set("cliente", params.get("cliente") || "");
+        volver.href = url.href;
+        volver.style.display = "block";
+        volver.hidden = false;
+        let volumeUser;
+        try {
+          volumeUser = JSON.parse(localStorage.getItem("app_login_user") || "null")?.user;
+        } catch {
+          // Una sesión dañada debe seguir el flujo de ingreso habitual.
+        }
+        const baseUser = USERS.find(u => u.user === volumeUser);
+        if (baseUser) {
+          currentUser = { ...baseUser };
+          startPrivateApp();
+          document.getElementById("sessionActions").style.display = "none";
+          return;
+        }
+      }
       const saved = localStorage.getItem(LOGIN_STORAGE_KEY);
       if(!saved) return;
 
