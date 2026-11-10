@@ -648,6 +648,7 @@
         const baseUser = USERS.find(u => u.user === volumeUser);
         if (baseUser) {
           currentUser = { ...baseUser };
+          document.getElementById("clientSearchCard").after(infoMsg, errorMsg);
           document.body.classList.remove("referencias-bloqueada");
           startPrivateApp();
           document.getElementById("sessionActions").style.display = "none";
@@ -852,7 +853,7 @@
     async function cargarDatosDesdeDrive() {
       try {
         hideError();
-        showInfo("Cargando datos desde Drive...");
+        hideInfo();
 
         const [
           clientesRaw,
@@ -911,14 +912,10 @@
         render();
 
         if (codigoSolicitado && !clienteSolicitado) {
-          document.documentElement.classList.remove("from-volume");
-          showInfo("El cliente solicitado no está disponible para este usuario.");
-        } else {
-          showInfo(`Datos cargados correctamente. Clientes: ${state.clientes.length}`);
+          showInfo("El cliente solicitado no está disponible en Referencias para este usuario.");
         }
       } catch (error) {
         console.error(error);
-        document.documentElement.classList.remove("from-volume");
         showError("No se pudieron cargar los datos desde Google Sheets.");
         productos.innerHTML = `<div class="muted">No se pudieron cargar los datos.</div>`;
       }
