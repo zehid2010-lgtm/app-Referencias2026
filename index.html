@@ -846,6 +846,28 @@
       }).data;
     }
 
+    function normalizarCodigoCliente(valor) {
+      return normalize(valor).replace(/^0+(?=\d)/, "").replace(/[.,]0+$/, "");
+    }
+
+    function conciliarClienteDeVolumen(clientes, compras, codigo) {
+      if (!codigo || !currentUser || entryParams.get("origen") !== "volumen") return;
+      let ficha;
+      try {
+        ficha = JSON.parse(sessionStorage.getItem("volumen_referencia_cliente") || "null");
+      } catch {
+        return;
+      }
+      if (ficha?.user !== currentUser.user || ficha.numero !== codigo || !userCanSeeRoute(ficha.ruta)) return;
+
+      const indice = clientes.findIndex(cliente => cliente.numero === codigo);
+      if (indice >= 0) {
+        clientes[indice] = { ...clientes[indice], ruta: ficha.ruta };
+      } else if (ficha.cliente && compras.some(compra => compra.numero === codigo)) {
+        clientes.push({ numero: codigo, cliente: ficha.cliente, ruta: ficha.ruta, vendedor: "", telefono: "" });
+      }
+    }
+
     async function cargarDatosDesdeDrive() {
       try {
         hideError();
@@ -868,19 +890,21 @@
         ]);
 
         state.clientes = clientesRaw.map(x => ({
-          numero: normalize(x.Numero || x.NUMERO || x.numero),
+          numero: normalizarCodigoCliente(x.Numero || x.NUMERO || x.numero),
           cliente: normalize(x.Cliente || x.CLIENTE || x.cliente),
           ruta: normalize(x.Ruta || x.RUTA || x.ruta).replace(/^0*31(4[0-5])$/, "$1"),
           vendedor: normalize(x.Vendedor || x.VENDEDOR || x.vendedor),
           telefono: normalize(x.Telefono || x.TELEFONO || x.telefono)
         })).filter(x => x.numero && x.cliente);
 
-        filterClientesByUser();
-
         state.compras = comprasRaw.map(x => ({
-          numero: normalize(x.Numero || x.NUMERO || x.numero),
+          numero: normalizarCodigoCliente(x.Numero || x.NUMERO || x.numero),
           producto: normalize(x.Producto || x.PRODUCTO || x.producto)
         })).filter(x => x.numero && x.producto);
+
+        const codigoSolicitado = normalizarCodigoCliente(entryParams.get("cliente"));
+        conciliarClienteDeVolumen(state.clientes, state.compras, codigoSolicitado);
+        filterClientesByUser();
 
         state.categorias.COLAS = colasRaw.map(x => normalize(x.Producto || x.PRODUCTO || x.producto)).filter(Boolean);
         state.categorias.SABORES = saboresRaw.map(x => normalize(x.Producto || x.PRODUCTO || x.producto)).filter(Boolean);
@@ -900,7 +924,6 @@
           routeSelect.value = currentUser.rutas[0];
           state.rutaActual = currentUser.rutas[0];
         }
-        const codigoSolicitado = new URLSearchParams(window.location.search).get("cliente");
         const clienteSolicitado = codigoSolicitado && clientesFiltradosBase().find(c => c.numero === codigoSolicitado);
         if (clienteSolicitado) state.clienteActual = clienteSolicitado.numero;
         buildClientSelect();
