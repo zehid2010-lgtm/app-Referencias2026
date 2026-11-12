@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cobertura por Cliente</title>
+  <link rel="preconnect" href="https://docs.google.com">
+  <link rel="preconnect" href="https://docs.googleusercontent.com">
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script>
     const entryParams = new URLSearchParams(location.search);
@@ -644,7 +646,8 @@
         const baseUser = USERS.find(u => u.user === volumeUser);
         if (baseUser) {
           currentUser = { ...baseUser };
-          document.getElementById("clientSearchCard").after(infoMsg, errorMsg);
+          document.getElementById("clientSearchCard").after(infoMsg, errorMsg, btnReload);
+          btnReload.hidden = true;
           document.body.classList.remove("referencias-bloqueada");
           startPrivateApp();
           document.getElementById("sessionActions").style.display = "none";
@@ -830,8 +833,8 @@
       window.scrollTo({top:0, behavior:"smooth"});
     }
 
-    async function cargarCSV(url) {
-      const res = await fetch(url, { cache: "no-store" });
+    async function cargarCSV(url, signal, cache = "no-store") {
+      const res = await fetch(url, { cache, signal });
       if (!res.ok) throw new Error(`No se pudo cargar ${url}`);
 
       const text = await res.text();
@@ -850,30 +853,46 @@
       return normalize(valor).replace(/^0+(?=\d)/, "").replace(/[.,]0+$/, "");
     }
 
-    function conciliarClienteDeVolumen(clientes, compras, codigo) {
-      if (!codigo || !currentUser || entryParams.get("origen") !== "volumen") return;
+    function leerFichaDeVolumen(codigo) {
+      if (!codigo || !currentUser || entryParams.get("origen") !== "volumen") return null;
       let ficha;
       try {
         ficha = JSON.parse(localStorage.getItem("volumen_referencia_cliente:" + currentUser.user) || "null");
       } catch {
-        return;
+        return null;
       }
-      if (ficha?.user !== currentUser.user || ficha.numero !== codigo || !userCanSeeRoute(ficha.ruta)) return;
-      const antiguedad = Date.now() - ficha.enviadoEn;
-      if (!Number.isFinite(antiguedad) || antiguedad < 0 || antiguedad > 15 * 60 * 1000) return;
 
-      const indice = clientes.findIndex(cliente => cliente.numero === codigo);
-      if (indice >= 0) {
-        clientes[indice] = { ...clientes[indice], ruta: ficha.ruta };
-      } else if (ficha.cliente && compras.some(compra => compra.numero === codigo)) {
-        clientes.push({ numero: codigo, cliente: ficha.cliente, ruta: ficha.ruta, vendedor: "", telefono: "" });
-      }
+      if (ficha?.user !== currentUser.user || ficha.numero !== codigo ||
+          !ficha.cliente || !userCanSeeRoute(ficha.ruta)) return null;
+
+      const antiguedad = Date.now() - ficha.enviadoEn;
+      if (!Number.isFinite(antiguedad) || antiguedad < 0 || antiguedad > 15 * 60 * 1000) return null;
+      return {
+        numero: codigo,
+        cliente: ficha.cliente,
+        ruta: ficha.ruta,
+        vendedor: ficha.vendedor || "",
+        telefono: ficha.telefono || ""
+      };
     }
 
     async function cargarDatosDesdeDrive() {
+      if (btnReload.disabled) return;
+      btnReload.disabled = true;
+      const codigoSolicitado = normalizarCodigoCliente(entryParams.get("cliente"));
+      const ficha = leerFichaDeVolumen(codigoSolicitado);
+      const desdeVolumen = entryParams.get("origen") === "volumen" && !!codigoSolicitado;
+      const controlador = new AbortController();
+      const tiempoMaximo = setTimeout(() => controlador.abort(), 18000);
+
       try {
         hideError();
-        hideInfo();
+        if (desdeVolumen) {
+          btnReload.hidden = true;
+          showInfo(ficha ? ficha.cliente + " · Ruta " + ficha.ruta + " · Cargando referencias…" : "Cargando referencias del cliente…");
+        } else {
+          hideInfo();
+        }
 
         const [
           clientesRaw,
@@ -883,15 +902,15 @@
           stillsRaw,
           multiRaw
         ] = await Promise.all([
-          cargarCSV(URLS.clientes),
-          cargarCSV(URLS.compras),
-          cargarCSV(URLS.colas),
-          cargarCSV(URLS.sabores),
-          cargarCSV(URLS.stills),
-          cargarCSV(URLS.multicategorias)
+          ficha ? [] : cargarCSV(URLS.clientes, controlador.signal),
+          cargarCSV(URLS.compras, controlador.signal),
+          cargarCSV(URLS.colas, controlador.signal, "default"),
+          cargarCSV(URLS.sabores, controlador.signal, "default"),
+          cargarCSV(URLS.stills, controlador.signal, "default"),
+          cargarCSV(URLS.multicategorias, controlador.signal, "default")
         ]);
 
-        state.clientes = clientesRaw.map(x => ({
+        state.clientes = ficha ? [ficha] : clientesRaw.map(x => ({
           numero: normalizarCodigoCliente(x.Numero || x.NUMERO || x.numero),
           cliente: normalize(x.Cliente || x.CLIENTE || x.cliente),
           ruta: normalize(x.Ruta || x.RUTA || x.ruta).replace(/^0*31(4[0-5])$/, "$1"),
@@ -904,9 +923,8 @@
           producto: normalize(x.Producto || x.PRODUCTO || x.producto)
         })).filter(x => x.numero && x.producto);
 
-        const codigoSolicitado = normalizarCodigoCliente(entryParams.get("cliente"));
-        conciliarClienteDeVolumen(state.clientes, state.compras, codigoSolicitado);
         filterClientesByUser();
+        hideInfo();
 
         state.categorias.COLAS = colasRaw.map(x => normalize(x.Producto || x.PRODUCTO || x.producto)).filter(Boolean);
         state.categorias.SABORES = saboresRaw.map(x => normalize(x.Producto || x.PRODUCTO || x.producto)).filter(Boolean);
@@ -937,8 +955,13 @@
         }
       } catch (error) {
         console.error(error);
-        showError("No se pudieron cargar los datos desde Google Sheets.");
-        productos.innerHTML = `<div class="muted">No se pudieron cargar los datos.</div>`;
+        controlador.abort();
+        hideInfo();
+        showError("No se pudieron cargar las referencias. Tocá Actualizar para reintentar.");
+        btnReload.hidden = false;
+      } finally {
+        clearTimeout(tiempoMaximo);
+        btnReload.disabled = false;
       }
     }
 
