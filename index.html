@@ -489,15 +489,11 @@
     const CUSTOM_PASS_KEY = "referencias_users_custom_v3";
 
     const USERS = [
-      { user:"admin", pass:"coca2026", rutas:["*"] },
-      { user:"cristian", pass:"1616", rutas:["16"] },
-      { user:"aldo", pass:"1717", rutas:["17"] },
-      { user:"pablo", pass:"4040", rutas:["40"] },
-      { user:"javier", pass:"4141", rutas:["41"] },
-      { user:"mauro", pass:"4242", rutas:["42"] },
-      { user:"diego", pass:"4343", rutas:["43"] },
-      { user:"carlos", pass:"4444", rutas:["44"] },
-      { user:"adrian", pass:"4545", rutas:["45"] }
+      {"user":"admin","pass":"coca2026","rutas":["*"]},
+      {"user":"mauro","pass":"4242","rutas":["40"]},
+      {"user":"pablo","pass":"4040","rutas":["41"]},
+      {"user":"adrian","pass":"4545","rutas":["42"]},
+      {"user":"diego","pass":"4343","rutas":["43"]}
     ];
 
     let currentUser = null;
@@ -515,7 +511,7 @@
       localStorage.removeItem(CUSTOM_PASS_KEY);
       localStorage.removeItem("referencias_login_user");
       localStorage.removeItem("referencias_users_custom");
-      localStorage.removeItem("app_login_user");
+      localStorage.removeItem("app_login_user_volumen_nov2026");
       alert("Claves restablecidas. Probá ingresar nuevamente.");
       location.reload();
     }
@@ -641,7 +637,7 @@
         volver.hidden = false;
         let volumeUser;
         try {
-          volumeUser = JSON.parse(localStorage.getItem("app_login_user") || "null")?.user;
+          volumeUser = JSON.parse(localStorage.getItem("app_login_user_volumen_nov2026") || "null")?.user;
         } catch {
           // Una sesión inválida muestra el acceso a Volumen.
         }
@@ -874,7 +870,7 @@
         state.clientes = clientesRaw.map(x => ({
           numero: normalize(x.Numero || x.NUMERO || x.numero),
           cliente: normalize(x.Cliente || x.CLIENTE || x.cliente),
-          ruta: normalize(x.Ruta || x.RUTA || x.ruta),
+          ruta: normalize(x.Ruta || x.RUTA || x.ruta).replace(/^0*31(4[0-5])$/, "$1"),
           vendedor: normalize(x.Vendedor || x.VENDEDOR || x.vendedor),
           telefono: normalize(x.Telefono || x.TELEFONO || x.telefono)
         })).filter(x => x.numero && x.cliente);
