@@ -854,11 +854,13 @@
       if (!codigo || !currentUser || entryParams.get("origen") !== "volumen") return;
       let ficha;
       try {
-        ficha = JSON.parse(sessionStorage.getItem("volumen_referencia_cliente") || "null");
+        ficha = JSON.parse(localStorage.getItem("volumen_referencia_cliente:" + currentUser.user) || "null");
       } catch {
         return;
       }
       if (ficha?.user !== currentUser.user || ficha.numero !== codigo || !userCanSeeRoute(ficha.ruta)) return;
+      const antiguedad = Date.now() - ficha.enviadoEn;
+      if (!Number.isFinite(antiguedad) || antiguedad < 0 || antiguedad > 15 * 60 * 1000) return;
 
       const indice = clientes.findIndex(cliente => cliente.numero === codigo);
       if (indice >= 0) {
